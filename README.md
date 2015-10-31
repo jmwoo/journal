@@ -6,14 +6,12 @@ This is a simple journaling application that stores entries in JSON.
 
 ### write entries
 
-    node journal.js -w
+    node journal.js -w {journal}
 
 ### print entries
-run with the --print (-p) flag
 
-    node journal.js -p
+    node journal.js -p {journal}
 
 ### search for entries given a regular expression
-run with the --search (-s) flag along with a regex
 
-    node journal.js -s node.js
+    node journal.js -s {journal} {regex}
