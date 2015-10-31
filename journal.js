@@ -1,5 +1,6 @@
 var moment = require('moment');
 var colors = require('colors');
+var _ = require('lodash');
 var readline = require('readline');
 var path = require('path');
 var fs = require('fs');
@@ -9,10 +10,20 @@ var argv = require('optimist')
     .alias('s', 'search')
     .argv;
 
-var config = {"mfmt":"YYYY-MM-DD HH:mm:ss.SSS", 'entriesName':'main'};
-var entriesDir = path.join(__dirname, 'entries');
-var entriesFilename = path.join(entriesDir, config.entriesName + '.json');
-var entries = JSON.parse(fs.readFileSync(entriesFilename));
+var entriesFilename;
+var entries;
+
+var init = function (journalName) {
+    if (!_.isString(journalName)) {
+        journalName = 'main';
+    }
+    var entriesDir = path.join(__dirname, 'entries');
+    entriesFilename = path.join(entriesDir, journalName + '.json');
+    entries = [];
+    if (fs.existsSync(entriesFilename)) {
+        entries = JSON.parse(fs.readFileSync(entriesFilename));
+    }
+};
 
 var saveToFile = function() {
     fs.writeFile(entriesFilename, JSON.stringify(entries), function(err) {
@@ -35,7 +46,7 @@ var write = function() {
         }
         if (text) {
             entries.push({
-                timestamp: moment().format(config.mfmt),
+                timestamp: moment().format('YYYY-MM-DD HH:mm:ss.SSS'),
                 text: text,
                 id: id
             });
@@ -92,9 +103,16 @@ var search = function(regExpStr) {
 };
 
 if (argv.write) {
+    init(argv.write);
     write();
 } else if (argv.print) {
+    init(argv.print);
     print(entries);
-} else if (argv.search) {
-    search(argv.search);
+}
+else if (argv.search) {
+    init(argv.search);
+    if (argv._.length > 0) {
+        var searchText = argv._[0];
+        search(searchText);
+    }
 }
