@@ -27,20 +27,20 @@ var init = function (journalName) {
     }
 };
 
-var saveToFile = function() {
-    fs.writeFile(entriesFilename, JSON.stringify(entries), function(err) {
+var saveToFile = function () {
+    fs.writeFile(entriesFilename, JSON.stringify(entries), function (err) {
         if (err) {
             throw err;
         }
     });
 };
 
-var write = function() {
+var write = function () {
     var rl = readline.createInterface(process.stdin, process.stdout);
     var prompt = '>>> ';
     rl.setPrompt(prompt, prompt.length);
     rl.prompt();
-    rl.on('line', function(text) {
+    rl.on('line', function (text) {
         text = text.trim();
         var id = 1;
         if (entries.length > 0) {
@@ -58,29 +58,29 @@ var write = function() {
     });
 };
 
-var print = function(entriesToPrint) {
+var print = function (entriesToPrint) {
     console.log('');
 
     _.forEach(entriesToPrint, function (entry) {
         var amoment = moment(entry.timestamp);
         var displayMoment = amoment.format('dddd MMMM Do YYYY, h:mm:ss a');
-        var displayId = (entry.id.toString()).green; 
+        var displayId = (entry.id.toString()).green;
         console.log("%s\n%s %s\n", displayMoment.red, displayId, entry.text);
     });
 
     console.log("total: %s\n", entriesToPrint.length.toString().yellow);
 };
 
-var search = function(regExpStr) {
+var search = function (regExpStr) {
     var flags = 'ig'; //case-insensitive, global
     var regExp = new RegExp(regExpStr, flags);
 
-    var matchedEntries = _.filter(entries, function(entry) {
+    var matchedEntries = _.filter(entries, function (entry) {
         return regExp.test(entry.text);
     });
 
     // add colored highlights for matches
-    var coloredEntries = _.map(matchedEntries, function(entry) {
+    var coloredEntries = _.map(matchedEntries, function (entry) {
         regExp = new RegExp(regExpStr, flags); // have to reinitialize regexp here
 
         var wordMatches = [];
@@ -110,8 +110,7 @@ if (argv.write) {
 } else if (argv.print) {
     init(argv.print);
     print(entries);
-}
-else if (argv.search) {
+} else if (argv.search) {
     init(argv.search);
     if (argv._.length > 0) {
         var searchText = argv._[0];
