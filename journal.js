@@ -1,5 +1,6 @@
 var moment = require('moment');
 var colors = require('colors');
+var mkdirp = require('mkdirp');
 var _ = require('lodash');
 var readline = require('readline');
 var path = require('path');
@@ -18,6 +19,7 @@ var init = function (journalName) {
         journalName = 'main';
     }
     var entriesDir = path.join(__dirname, 'entries');
+    mkdirp.sync(entriesDir);
     entriesFilename = path.join(entriesDir, journalName + '.json');
     entries = [];
     if (fs.existsSync(entriesFilename)) {
