@@ -1,6 +1,5 @@
 var moment = require('moment');
 var colors = require('colors');
-var mkdirp = require('mkdirp');
 var readline = require('readline');
 var path = require('path');
 var fs = require('fs');
