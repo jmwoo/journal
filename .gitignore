@@ -1,2 +1,4 @@
 .DS_Store
-./entries
+entries/
+mutate.js
+archive_mac.sh
