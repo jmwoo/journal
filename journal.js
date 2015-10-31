@@ -59,7 +59,7 @@ var write = function() {
 var print = function(entriesToPrint) {
     console.log('');
 
-    entriesToPrint.forEach(function (entry) {
+    _.forEach(entriesToPrint, function (entry) {
         var amoment = moment(entry.timestamp);
         var displayMoment = amoment.format('dddd MMMM Do YYYY, h:mm:ss a');
         var displayId = (entry.id.toString()).green; 
@@ -73,12 +73,12 @@ var search = function(regExpStr) {
     var flags = 'ig'; //case-insensitive, global
     var regExp = new RegExp(regExpStr, flags);
 
-    var matchedEntries = entries.filter(function(entry) {
+    var matchedEntries = _.filter(entries, function(entry) {
         return regExp.test(entry.text);
     });
 
     // add colored highlights for matches
-    var coloredEntries = matchedEntries.map(function(entry) {
+    var coloredEntries = _.map(matchedEntries, function(entry) {
         regExp = new RegExp(regExpStr, flags); // have to reinitialize regexp here
 
         var wordMatches = [];
@@ -92,9 +92,9 @@ var search = function(regExpStr) {
             }
         }
 
-        for (var _i = 0, _len = wordMatches.length; _i < _len; ++_i) {
-            entry.text = entry.text.replace(regExp, wordMatches[_i].green);
-        }
+        _.forEach(wordMatches, function (wordMatch) {
+            entry.text = entry.text.replace(regExp, wordMatch.green);
+        });
 
         return entry;
     });
