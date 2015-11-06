@@ -64,8 +64,8 @@ var print = function (entriesToPrint) {
     _.forEach(entriesToPrint, function (entry) {
         var amoment = moment(entry.timestamp);
         var displayMoment = amoment.format('dddd MMMM Do YYYY, h:mm:ss a');
-        var displayId = (entry.id.toString()).green;
-        console.log("%s\n%s %s\n", displayMoment.red, displayId, entry.text);
+        var displayId = (entry.id.toString());
+        console.log("%s\n%s %s\n", displayMoment.blue.bold, displayId.green.bold, entry.text);
     });
 
     console.log("total: %s\n", entriesToPrint.length.toString().yellow);
@@ -95,7 +95,7 @@ var search = function (regExpStr) {
         }
 
         _.forEach(wordMatches, function (wordMatch) {
-            entry.text = entry.text.replace(regExp, wordMatch.yellow);
+            entry.text = entry.text.replace(regExp, wordMatch.underline.yellow);
         });
 
         return entry;
