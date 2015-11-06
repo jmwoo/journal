@@ -48,7 +48,7 @@ var write = function () {
         }
         if (text) {
             entries.push({
-                timestamp: moment().format('YYYY-MM-DD HH:mm:ss.SSS'),
+                timestamp: new Date().toISOString(),
                 text: text,
                 id: id
             });
@@ -72,7 +72,7 @@ var print = function (entriesToPrint) {
 };
 
 var search = function (regExpStr) {
-    var flags = 'ig'; //case-insensitive, global
+    var flags = 'ig'; // case-insensitive, global
     var regExp = new RegExp(regExpStr, flags);
 
     var matchedEntries = _.filter(entries, function (entry) {
@@ -95,7 +95,7 @@ var search = function (regExpStr) {
         }
 
         _.forEach(wordMatches, function (wordMatch) {
-            entry.text = entry.text.replace(regExp, wordMatch.green);
+            entry.text = entry.text.replace(regExp, wordMatch.yellow);
         });
 
         return entry;
