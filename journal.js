@@ -9,6 +9,8 @@ var argv = require('optimist')
     .alias('w', 'write')
     .alias('p', 'print')
     .alias('s', 'search')
+    .alias('f', 'first')
+    .alias('l', 'last')
     .argv;
 
 var entriesFilename;
@@ -58,15 +60,19 @@ var write = function () {
     });
 };
 
-var print = function (entriesToPrint, lastNentriesToPrint) {
-    console.log('');
+var print = function () {
+    var entriesToPrint = entries;
 
-    if (_.isNumber(lastNentriesToPrint) && lastNentriesToPrint > 0) {
-        if (entriesToPrint.length >= lastNentriesToPrint) {
-            entriesToPrint = _.takeRight(entriesToPrint, lastNentriesToPrint);
+    // if a 'first' or 'last' argument is passed, parse and limit accordingly
+    if (argv.first || argv.last) {
+        var limit = argv.first || argv.last;
+        if (_.isNumber(limit) && entriesToPrint.length >= limit) {
+            var take = argv.first ? _.take : _.takeRight;
+            entriesToPrint = take(entriesToPrint, limit);
         }
     }
 
+    console.log('');
     _.forEach(entriesToPrint, function (entry) {
         var amoment = moment(entry.timestamp);
         var displayMoment = amoment.format('dddd MMMM Do YYYY, h:mm:ss a');
@@ -115,12 +121,13 @@ if (argv.write) {
     write();
 } else if (argv.print) {
     init(argv.print);
-    if (argv._.length > 0) {
-        var lastNentriesToPrint = argv._[0];
-        print(entries, lastNentriesToPrint);
-    } else {
-        print(entries);
-    }
+    print();
+    // if (argv._.length > 0) {
+    //     var lastNentriesToPrint = argv._[0];
+    //     print(entries, lastNentriesToPrint);
+    // } else {
+    //     print(entries);
+    // }
 } else if (argv.search) {
     init(argv.search);
     if (argv._.length > 0) {
