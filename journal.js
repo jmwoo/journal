@@ -16,7 +16,8 @@ var argv = require('optimist')
 var entriesFilename;
 var entries;
 
-var init = function (journalName) {
+var init = function () {
+    var journalName = argv.write || argv.print || argv.search || -1;
     if (!_.isString(journalName)) {
         journalName = 'main';
     }
@@ -116,14 +117,12 @@ var search = function (regExpStr) {
     print(coloredEntries);
 };
 
+init();
 if (argv.write) {
-    init(argv.write);
     write();
 } else if (argv.print) {
-    init(argv.print);
     print();
 } else if (argv.search) {
-    init(argv.search);
     if (argv._.length > 0) {
         var searchText = argv._[0];
         search(searchText);
