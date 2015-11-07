@@ -58,8 +58,14 @@ var write = function () {
     });
 };
 
-var print = function (entriesToPrint) {
+var print = function (entriesToPrint, lastNentriesToPrint) {
     console.log('');
+
+    if (_.isNumber(lastNentriesToPrint) && lastNentriesToPrint > 0) {
+        if (entriesToPrint.length >= lastNentriesToPrint) {
+            entriesToPrint = _.takeRight(entriesToPrint, lastNentriesToPrint);
+        }
+    }
 
     _.forEach(entriesToPrint, function (entry) {
         var amoment = moment(entry.timestamp);
@@ -109,7 +115,12 @@ if (argv.write) {
     write();
 } else if (argv.print) {
     init(argv.print);
-    print(entries);
+    if (argv._.length > 0) {
+        var lastNentriesToPrint = argv._[0];
+        print(entries, lastNentriesToPrint);
+    } else {
+        print(entries);
+    }
 } else if (argv.search) {
     init(argv.search);
     if (argv._.length > 0) {

@@ -8,9 +8,9 @@ This is a simple journaling application that stores entries in JSON.
 
     node journal.js -w {journal}
 
-### print entries
+### print entries, (optional: only print last N entries)
 
-    node journal.js -p {journal}
+    node journal.js -p {journal} {lastN}
 
 ### search for entries given a regular expression
 
