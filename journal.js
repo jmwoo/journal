@@ -122,12 +122,6 @@ if (argv.write) {
 } else if (argv.print) {
     init(argv.print);
     print();
-    // if (argv._.length > 0) {
-    //     var lastNentriesToPrint = argv._[0];
-    //     print(entries, lastNentriesToPrint);
-    // } else {
-    //     print(entries);
-    // }
 } else if (argv.search) {
     init(argv.search);
     if (argv._.length > 0) {
