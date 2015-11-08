@@ -15,6 +15,7 @@ var argv = require('optimist')
 
 var entriesFilename;
 var entries;
+var momentFormat = 'dddd MMMM Do YYYY, h:mm:ss a';
 
 var init = function () {
     var journalName = argv.write || argv.print || argv.search || -1;
@@ -36,6 +37,18 @@ var saveToFile = function () {
             throw err;
         }
     });
+};
+
+var printSet = function (entriesToPrint) {
+    console.log('');
+    _.forEach(entriesToPrint, function (entry) {
+        var amoment = moment(entry.timestamp);
+        var displayMoment = amoment.format(momentFormat);
+        var displayId = (entry.id.toString());
+        console.log("%s\n%s %s\n", displayMoment.blue.bold, displayId.green.bold, entry.text);
+    });
+
+    console.log("total: %s\n", entriesToPrint.length.toString().yellow);
 };
 
 var write = function () {
@@ -73,15 +86,7 @@ var print = function () {
         }
     }
 
-    console.log('');
-    _.forEach(entriesToPrint, function (entry) {
-        var amoment = moment(entry.timestamp);
-        var displayMoment = amoment.format('dddd MMMM Do YYYY, h:mm:ss a');
-        var displayId = (entry.id.toString());
-        console.log("%s\n%s %s\n", displayMoment.blue.bold, displayId.green.bold, entry.text);
-    });
-
-    console.log("total: %s\n", entriesToPrint.length.toString().yellow);
+    printSet(entriesToPrint);
 };
 
 var search = function (regExpStr) {
@@ -114,7 +119,7 @@ var search = function (regExpStr) {
         return entry;
     });
 
-    print(coloredEntries);
+    printSet(coloredEntries);
 };
 
 init();
