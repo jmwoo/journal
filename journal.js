@@ -53,7 +53,8 @@ var printSet = function (entriesToPrint) {
 
 var write = function () {
     var rl = readline.createInterface(process.stdin, process.stdout);
-    var prompt = '>>> ';
+    var id = entries.length + 1;
+    var prompt = '('+id.toString()+') '+'>>> ';
     rl.setPrompt(prompt, prompt.length);
     rl.prompt();
     rl.on('line', function (text) {
