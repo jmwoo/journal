@@ -71,6 +71,9 @@ var write = function () {
             });
             saveToFile();
         }
+        id = entries.length + 1;
+        prompt = '('+id.toString()+') '+'>>> ';
+        rl.setPrompt(prompt, prompt.length);
         rl.prompt();
     });
 };
