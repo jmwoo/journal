@@ -41,7 +41,7 @@ var saveToFile = function () {
 };
 
 var printSet = function (entriesToPrint) {
-    console.log('');
+    console.log("\n'"+journalName+"'\n");
     _.forEach(entriesToPrint, function (entry) {
         var amoment = moment(entry.timestamp);
         var displayMoment = amoment.format(momentFormat);
