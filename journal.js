@@ -13,26 +13,27 @@ var argv = require('optimist')
     .alias('l', 'last')
     .argv;
 
-var entriesFilename;
+var journalName;
+var journalFileName;
 var entries;
 var momentFormat = 'dddd MMMM Do YYYY, h:mm:ss a';
 
 var init = function () {
-    var journalName = argv.write || argv.print || argv.search || -1;
+    journalName = argv.write || argv.print || argv.search || -1;
     if (!_.isString(journalName)) {
         journalName = 'main';
     }
-    var entriesDir = path.join(__dirname, 'entries');
-    mkdirp.sync(entriesDir);
-    entriesFilename = path.join(entriesDir, journalName + '.json');
+    var journalDir = path.join(__dirname, 'entries');
+    mkdirp.sync(journalDir);
+    journalFileName = path.join(journalDir, journalName + '.json');
     entries = [];
-    if (fs.existsSync(entriesFilename)) {
-        entries = JSON.parse(fs.readFileSync(entriesFilename));
+    if (fs.existsSync(journalFileName)) {
+        entries = JSON.parse(fs.readFileSync(journalFileName));
     }
 };
 
 var saveToFile = function () {
-    fs.writeFile(entriesFilename, JSON.stringify(entries), function (err) {
+    fs.writeFile(journalFileName, JSON.stringify(entries), function (err) {
         if (err) {
             throw err;
         }
@@ -54,7 +55,7 @@ var printSet = function (entriesToPrint) {
 var write = function () {
     var rl = readline.createInterface(process.stdin, process.stdout);
     var id = entries.length + 1;
-    var prompt = '('+id.toString()+') '+'>>> ';
+    var prompt = "'"+journalName+"' "+"("+id.toString()+") "+">>> ";
     rl.setPrompt(prompt, prompt.length);
     rl.prompt();
     rl.on('line', function (text) {
