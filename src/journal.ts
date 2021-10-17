@@ -1,11 +1,12 @@
 import moment from 'moment'
 import colors from 'colors'
 import mkdirp = require('mkdirp')
-import _ from 'lodash'
+import { isString, isNumber, take, takeRight} from 'lodash'
 import readline = require('readline')
 import path = require('path')
 import fs = require('fs')
 const argv = require('optimist')
+    .alias('j', 'journal')
     .alias('w', 'write')
     .alias('p', 'print')
     .alias('s', 'search')
@@ -26,12 +27,12 @@ let journalFileName: string
 let entries: Entry[]
 const momentFormat = 'dddd MMMM Do YYYY, h:mm:ss a'
 
-const init = function () {
-    journalName = argv.write || argv.print || argv.search || -1
-    if (!_.isString(journalName)) {
+const init = () => {
+    journalName = argv.journal
+    if (!isString(journalName)) {
         journalName = 'main'
     }
-    const journalDir = path.join(__dirname, 'entries')
+    const journalDir = path.join(__dirname, '../entries')
     mkdirp.sync(journalDir)
     journalFileName = path.join(journalDir, journalName + '.json')
     entries = []
@@ -40,7 +41,7 @@ const init = function () {
     }
 }
 
-const saveToFile = function () {
+const saveToFile = () => {
     fs.writeFile(journalFileName, JSON.stringify(entries), (error) => {
         if (error) {
             throw error
@@ -48,7 +49,7 @@ const saveToFile = function () {
     })
 }
 
-const printSet = function (entriesToPrint: Entry[]) {
+const printSet = (entriesToPrint: Entry[]) => {
     console.log("\n'"+journalName+"'\n")
     for (const entry of entriesToPrint)
     {
@@ -60,7 +61,7 @@ const printSet = function (entriesToPrint: Entry[]) {
     console.log("total: %s\n", entriesToPrint.length.toString().yellow)
 }
 
-const write = function () {
+const write = () => {
     const rl = readline.createInterface(process.stdin, process.stdout)
     const id = entries.length + 1
     let prompt = "'"+journalName+"' "+"("+id.toString()+") "+">>> "
@@ -87,31 +88,28 @@ const write = function () {
     })
 }
 
-const print = function () {
+const print = () => {
     let entriesToPrint = entries
 
     // if a 'first' or 'last' argument is passed, parse and limit accordingly
     if (argv.first || argv.last) {
         const limit = argv.first || argv.last
-        if (_.isNumber(limit) && entriesToPrint.length >= limit) {
-            const take = argv.first ? _.take : _.takeRight
-            entriesToPrint = take(entriesToPrint, limit)
+        if (isNumber(limit) && entriesToPrint.length >= limit) {
+            const takeFunction = argv.first ? take : takeRight
+            entriesToPrint = takeFunction(entriesToPrint, limit)
         }
     }
 
     printSet(entriesToPrint)
 }
 
-const search = function (regExpStr: string) {
+const search = (regExpStr: string) => {
     const flags = 'ig' // case-insensitive, global
     let regExp = new RegExp(regExpStr, flags)
-
-    const matchedEntries = _.filter(entries, function (entry: Entry) {
-        return regExp.test(entry.text)
-    })
+    const matchedEntries = entries.filter(entry => regExp.test(entry.text))
 
     // add colored highlights for matches
-    const coloredEntries = _.map(matchedEntries, function (entry: Entry) {
+    const coloredEntries = matchedEntries.map(entry => {
         regExp = new RegExp(regExpStr, flags) // have to reinitialize regexp here
 
         let wordMatches = []
@@ -141,8 +139,8 @@ if (argv.write) {
 } else if (argv.print) {
     print()
 } else if (argv.search) {
-    if (argv._.length > 0) {
-        const searchText = argv._[0]
+    const searchText: string = argv.search
+    if (searchText != null && isString(searchText) && searchText.trim() != '') {
         search(searchText)
     }
 }
