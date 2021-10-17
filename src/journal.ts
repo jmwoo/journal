@@ -139,8 +139,7 @@ if (argv.write) {
 } else if (argv.print) {
     print()
 } else if (argv.search) {
-    const searchText: string = argv.search
-    if (searchText != null && isString(searchText) && searchText.trim() != '') {
-        search(searchText)
+    if (isString(argv.search) && argv.search.trim() != '') {
+        search(argv.search)
     }
 }

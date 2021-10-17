@@ -124,8 +124,7 @@ else if (argv.print) {
     print();
 }
 else if (argv.search) {
-    const searchText = argv.search;
-    if (searchText != null && lodash_1.isString(searchText) && searchText.trim() != '') {
-        search(searchText);
+    if (lodash_1.isString(argv.search) && argv.search.trim() != '') {
+        search(argv.search);
     }
 }
