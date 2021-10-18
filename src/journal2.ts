@@ -1,17 +1,46 @@
 import { writeFile, readFile, access, mkdir } from 'fs/promises'
 import path from 'path'
-import { Entry, JouralArgs } from './types'
+import { Entry, JouralArguments, PrintDirection, PrintOptions } from './types'
 import colors from 'colors'
 import moment from 'moment'
+import { take, takeRight } from 'lodash'
 
 colors.enable()
 
-export class Journal {
+interface Journal {
+	save(): Promise<void>
+	print(options: PrintOptions): void
+	search(regExp: string): void
+	addEntry(text: string): Promise<void>
+}
+
+export async function getJournal(journalName: string): Promise<Journal> {
+	const directoryName = path.join(__dirname, '../entries')
+	const pathName = path.join(directoryName, `${journalName}.json`)
+	let entries: Entry[] = []
+
+	await mkdir(directoryName, { recursive: true })
+
+	try {
+		await access(pathName)
+		const buffer = await readFile(pathName)
+		entries = JSON.parse(buffer.toString())
+	} catch (error) {}
+
+	return new JournalImpl({
+		journalName: journalName,
+		directoryName: directoryName,
+		pathName: pathName,
+		entries: entries
+	})
+}
+
+class JournalImpl implements Journal {
 	private journalName: string
 	private pathName: string
 	private entries: Entry[]
 
-	private constructor(args: JouralArgs) {
+	constructor(args: JouralArguments) {
 		this.journalName = args.journalName
 		this.pathName = args.pathName
 		this.entries = args.entries
@@ -31,28 +60,55 @@ export class Journal {
 		console.log("total: %s\n", entries.length.toString().yellow)
 	}
 
-	public print() {
-		this.printSet(this.entries)
+	public print(options: PrintOptions) {
+		let entriesToPrint = this.entries
+		if (!options.amount) {
+			options.amount = Number.MAX_SAFE_INTEGER
+		}
+
+		const takeFunction = options.printDirection == PrintDirection.Front ? take : takeRight
+		entriesToPrint = takeFunction(entriesToPrint, options.amount)
+
+		this.printSet(entriesToPrint)
+	}
+	
+	search(regExpStr: string): void {
+		const getRegex = () => new RegExp(regExpStr, 'ig')
+		let regex = getRegex()
+
+		const matchedEntries = this.entries
+			.filter(entry => regex.test(entry.text))
+			.map(entry => {
+				// add colored highlights for matches
+				regex = getRegex()
+				const wordMatches: string[] = []
+				let match: RegExpExecArray | null = null
+				while (true) {
+					match = regex.exec(entry.text)
+					if (match) {
+						wordMatches.push(match[0])
+					} else {
+						break
+					}
+				}
+				for (const wordMatch of wordMatches) {
+					entry.text = entry.text.replace(regex, wordMatch.underline.yellow)
+				}
+				return entry
+			})
+		this.printSet(matchedEntries)
 	}
 
-	public static async create(journalName: string): Promise<Journal> {
-		const directoryName = path.join(__dirname, '../entries')
-		const pathName = path.join(directoryName, `${journalName}.json`)
-		let entries: Entry[] = []
-
-		await mkdir(directoryName, {recursive: true})
-
-		try {
-			await access(pathName)
-			const buffer = await readFile(pathName)
-			entries = JSON.parse(buffer.toString())
-		} catch (error) {}
-
-		return new Journal({
-			journalName: journalName,
-			directoryName: directoryName,
-			pathName: pathName,
-			entries: entries
+	async addEntry(text: string): Promise<void> {
+		if (text == null || text.trim() == '') {
+			console.log('entry text invalid')
+			return
+		}
+		this.entries.push({
+			text: text.trim(),
+			timestamp: new Date().toISOString(),
+			id: this.entries.length + 1
 		})
+		await this.save()
 	}
 }
