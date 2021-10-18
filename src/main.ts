@@ -1,23 +1,44 @@
-import { getJournal } from './journal2'
+import { getJournal } from './journal'
 import { PrintDirection } from './types'
+import yargs from 'yargs'
+import readline from 'readline'
 
 async function main() {
+	const args = await yargs(process.argv.slice(2)).options({
+		journal: {type: 'string', default: 'main', alias: 'j'},
+		write: {type: 'boolean', default: false, alias: 'w'},
+		print: {type: 'boolean', default: false, alias: 'p'},
+		search: {type: 'string', alias: 's' },
+		first: {type: 'number', alias: 'f'},
+		last: {type: 'number', alias: 'l'}
+	}).parse()
 
-	if (false) { // if no args, do nothing
-		return
-	}
+	const journal = await getJournal(args.journal)
 
-	if (true) { // if print
-
+	if (args.print) {
+		journal.print({
+			printDirection: args.first ? PrintDirection.Front : PrintDirection.Back,
+			amount: (args.first || args.last || Number.MAX_SAFE_INTEGER)
+		})
 	}
-	else if (false) { // if search
-		
+	else if (args.search && args.search.trim() != '') {
+		journal.search(args.search)
 	}
-	else if (false) { // if write
-		
+	else if (args.write) {
+		const rl = readline.createInterface(process.stdin, process.stdout)
+		const setPrompt = () => {
+			rl.setPrompt(`'${journal.getName()}' (${journal.getNextId()}) >>> `)
+			rl.prompt()
+		}
+		rl.on('line', async (text) => {
+			text = text.trim()
+			if (text) {
+				await journal.addEntry(text)
+			}
+			setPrompt()
+		})
+		setPrompt()
 	}
-	const journal = await getJournal('main')
-	journal.print({printDirection: PrintDirection.Front})
 }
 
 main()

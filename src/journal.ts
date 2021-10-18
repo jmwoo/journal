@@ -1,143 +1,117 @@
-import moment from 'moment'
+import { writeFile, readFile, access, mkdir } from 'fs/promises'
+import path from 'path'
+import { Entry, JouralArguments, PrintDirection, PrintOptions } from './types'
 import colors from 'colors'
-import mkdirp = require('mkdirp')
-import { isString, isNumber, take, takeRight} from 'lodash'
-import readline = require('readline')
-import path = require('path')
-import fs = require('fs')
-const argv = require('optimist')
-    .alias('j', 'journal')
-    .alias('w', 'write')
-    .alias('p', 'print')
-    .alias('s', 'search')
-    .alias('f', 'first')
-    .alias('l', 'last')
-    .argv
+import moment from 'moment'
+import { take, takeRight } from 'lodash'
 
 colors.enable()
 
-interface Entry {
-    id: number,
-    timestamp: string,
-    text: string
+interface Journal {
+	save(): Promise<void>
+	print(options: PrintOptions): void
+	search(regExp: string): void
+	addEntry(text: string): Promise<void>
+	getNextId(): number
+	getName(): string
 }
 
-let journalName: string
-let journalFileName: string
-let entries: Entry[]
+export async function getJournal(journalName: string): Promise<Journal> {
+	const directoryName = path.join(__dirname, '../entries')
+	const pathName = path.join(directoryName, `${journalName}.json`)
+	let entries: Entry[] = []
 
-const init = () => {
-    journalName = argv.journal
-    if (!isString(journalName)) {
-        journalName = 'main'
-    }
-    const journalDir = path.join(__dirname, '../entries')
-    mkdirp.sync(journalDir)
-    journalFileName = path.join(journalDir, journalName + '.json')
-    entries = []
-    if (fs.existsSync(journalFileName)) {
-        entries = JSON.parse(fs.readFileSync(journalFileName).toString())
-    }
+	await mkdir(directoryName, { recursive: true })
+
+	try {
+		await access(pathName)
+		const buffer = await readFile(pathName)
+		entries = JSON.parse(buffer.toString())
+	} catch (error) {}
+
+	return new JournalImpl({
+		journalName: journalName,
+		directoryName: directoryName,
+		pathName: pathName,
+		entries: entries
+	})
 }
 
-const saveToFile = () => {
-    fs.writeFile(journalFileName, JSON.stringify(entries), (error) => {
-        if (error) {
-            throw error
-        }
-    })
-}
+class JournalImpl implements Journal {
+	private journalName: string
+	private pathName: string
+	private entries: Entry[]
 
-const printSet = (entriesToPrint: Entry[]) => {
-    console.log("\n'"+journalName+"'\n")
-    for (const entry of entriesToPrint) {
-        const amoment = moment(entry.timestamp)
-        const displayMoment = amoment.format('dddd MMMM Do YYYY, h:mm:ss a')
-        const displayId = (entry.id.toString())
-        console.log("%s\n%s %s\n", displayMoment.blue.bold, displayId.green.bold, entry.text)
-    }
-    console.log("total: %s\n", entriesToPrint.length.toString().yellow)
-}
+	constructor(args: JouralArguments) {
+		this.journalName = args.journalName
+		this.pathName = args.pathName
+		this.entries = args.entries
+	}
+	getName(): string {
+		return this.journalName;
+	}
+	public getNextId(): number {
+		return this.entries.length + 1
+	}
 
-const write = () => {
-    const rl = readline.createInterface(process.stdin, process.stdout)
-    const id = entries.length + 1
-    let prompt = "'"+journalName+"' "+"("+id.toString()+") "+">>> "
-    rl.setPrompt(prompt)
-    rl.prompt()
-    rl.on('line', (text) => {
-        text = text.trim()
-        let id = 1
-        if (entries.length > 0) {
-            id = entries[entries.length - 1].id + 1
-        }
-        if (text) {
-            entries.push({
-                timestamp: new Date().toISOString(),
-                text: text,
-                id: id
-            })
-            saveToFile()
-        }
-        id = entries.length + 1
-        prompt = '('+id.toString()+') '+'>>> '
-        rl.setPrompt(prompt)
-        rl.prompt()
-    })
-}
+	public async save() {
+		await writeFile(this.pathName, JSON.stringify(this.entries))
+	}
 
-const print = () => {
-    let entriesToPrint = entries
+	private printSet(entries: Entry[]) {
+		console.log(`\n${this.journalName}\n`)
+		for (const entry of entries) {
+			const aMoment = moment(entry.timestamp)
+			const displayMoment = aMoment.format('dddd MMMM Do YYYY, h:mm:ss a')
+			console.log("%s\n%s %s\n", displayMoment.blue.bold, entry.id.toString().green.bold, entry.text)
+		}
+		console.log("total: %s\n", entries.length.toString().yellow)
+	}
 
-    // if a 'first' or 'last' argument is passed, parse and limit accordingly
-    if (argv.first || argv.last) {
-        const limit = argv.first || argv.last
-        if (isNumber(limit) && entriesToPrint.length >= limit) {
-            const takeFunction = argv.first ? take : takeRight
-            entriesToPrint = takeFunction(entriesToPrint, limit)
-        }
-    }
+	public print(options: PrintOptions) {
+		let entriesToPrint = this.entries
+		const takeFunction = options.printDirection == PrintDirection.Front ? take : takeRight
+		entriesToPrint = takeFunction(entriesToPrint, options.amount)
+		this.printSet(entriesToPrint)
+	}
+	
+	search(regExpStr: string): void {
+		const getRegex = () => new RegExp(regExpStr, 'ig')
+		let regex = getRegex()
 
-    printSet(entriesToPrint)
-}
+		const matchedEntries = this.entries
+			.filter(entry => regex.test(entry.text))
+			.map(entry => {
+				// add colored highlights for matches
+				regex = getRegex()
+				const wordMatches: string[] = []
+				let match: RegExpExecArray | null = null
+				while (true) {
+					match = regex.exec(entry.text)
+					if (match) {
+						wordMatches.push(match[0])
+					} else {
+						break
+					}
+				}
+				for (const wordMatch of wordMatches) {
+					entry.text = entry.text.replace(regex, wordMatch.underline.yellow)
+				}
+				return entry
+			})
+		this.printSet(matchedEntries)
+	}
 
-const search = (regExpStr: string) => {
-    const flags = 'ig' // case-insensitive, global
-    let regExp = new RegExp(regExpStr, flags)
-    const matchedEntries = entries.filter(entry => regExp.test(entry.text))
-
-    // add colored highlights for matches
-    const coloredEntries = matchedEntries.map(entry => {
-        regExp = new RegExp(regExpStr, flags) // have to reinitialize regexp here
-
-        let wordMatches = []
-        let match
-        while (true) {
-            match = regExp.exec(entry.text)
-            if (match) {
-                wordMatches.push(match[0])
-            } else {
-                break
-            }
-        }
-
-        for (const wordMatch of wordMatches) {
-            entry.text = entry.text.replace(regExp, wordMatch.underline.yellow)
-        }
-
-        return entry
-    })
-
-    printSet(coloredEntries)
-}
-
-init()
-if (argv.write) {
-    write()
-} else if (argv.print) {
-    print()
-} else if (argv.search) {
-    if (isString(argv.search) && argv.search.trim() != '') {
-        search(argv.search)
-    }
+	async addEntry(text: string): Promise<void> {
+		if (text == null || text.trim() == '') {
+			console.log('entry text invalid')
+			return
+		}
+		this.entries.push({
+			text: text.trim(),
+			timestamp: new Date().toISOString(),
+			id: this.getNextId()
+		})
+		await this.save()
+	}
 }

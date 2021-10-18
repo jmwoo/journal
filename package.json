@@ -6,16 +6,17 @@
     "lodash": "^4.17.21",
     "mkdirp": "^0.5.1",
     "moment": "^2.29.1",
-    "optimist": "^0.5.2"
+    "yargs": "^17.2.1"
   },
   "scripts": {
-    "start": "tsc && node dist/journal.js"
+    "start": "tsc && node dist/journal.js",
+    "build": "tsc"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.175",
     "@types/mkdirp": "^1.0.2",
     "@types/node": "^16.11.1",
-    "@types/optimist": "^0.0.30",
+    "@types/yargs": "^17.0.4",
     "typescript": "^4.4.4"
   }
 }

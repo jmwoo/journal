@@ -13,7 +13,7 @@ export interface JouralArguments {
 
 export interface PrintOptions {
 	printDirection: PrintDirection
-	amount?: number,
+	amount: number,
 }
 
 export enum PrintDirection {
