@@ -3,7 +3,7 @@ import { PrintDirection } from './types'
 import yargs from 'yargs'
 import readline from 'readline'
 
-async function main() {
+(async () => {
 	const args = await yargs(process.argv.slice(2)).options({
 		journal: {type: 'string', default: 'main', alias: 'j'},
 		write: {type: 'boolean', default: false, alias: 'w'},
@@ -13,6 +13,10 @@ async function main() {
 		last: {type: 'number', alias: 'l'}
 	}).parse()
 
+	if (!args.print || !args.search || !args.write) {
+		return
+	}
+	
 	const journal = await getJournal(args.journal)
 
 	if (args.print) {
@@ -39,6 +43,4 @@ async function main() {
 		})
 		setPrompt()
 	}
-}
-
-main()
+})()
