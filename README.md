@@ -34,3 +34,8 @@ npm run build
     node dist/main.js -s {regex}
 
     node dist/main.js -j work -s {regex}
+
+
+## TODO:
+- fix the formatting of the readme
+- add tests
