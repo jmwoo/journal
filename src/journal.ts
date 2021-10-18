@@ -25,7 +25,6 @@ interface Entry {
 let journalName: string
 let journalFileName: string
 let entries: Entry[]
-const momentFormat = 'dddd MMMM Do YYYY, h:mm:ss a'
 
 const init = () => {
     journalName = argv.journal
@@ -54,7 +53,7 @@ const printSet = (entriesToPrint: Entry[]) => {
     for (const entry of entriesToPrint)
     {
         const amoment = moment(entry.timestamp)
-        const displayMoment = amoment.format(momentFormat)
+        const displayMoment = amoment.format('dddd MMMM Do YYYY, h:mm:ss a')
         const displayId = (entry.id.toString())
         console.log("%s\n%s %s\n", displayMoment.blue.bold, displayId.green.bold, entry.text)
     }
