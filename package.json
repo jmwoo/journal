@@ -1,15 +1,21 @@
 {
   "name": "journal",
   "version": "1.0.0",
-  "private": true,
   "dependencies": {
-    "colors": "~0.6.2",
+    "colors": "^1.4.0",
     "lodash": "^4.17.21",
     "mkdirp": "^0.5.1",
     "moment": "^2.29.1",
     "optimist": "^0.5.2"
   },
   "scripts": {
-    "start": "node journal.js -w"
+    "start": "tsc && node dist/journal.js"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.175",
+    "@types/mkdirp": "^1.0.2",
+    "@types/node": "^16.11.1",
+    "@types/optimist": "^0.0.30",
+    "typescript": "^4.4.4"
   }
 }
