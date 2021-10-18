@@ -50,8 +50,7 @@ const saveToFile = () => {
 
 const printSet = (entriesToPrint: Entry[]) => {
     console.log("\n'"+journalName+"'\n")
-    for (const entry of entriesToPrint)
-    {
+    for (const entry of entriesToPrint) {
         const amoment = moment(entry.timestamp)
         const displayMoment = amoment.format('dddd MMMM Do YYYY, h:mm:ss a')
         const displayId = (entry.id.toString())
