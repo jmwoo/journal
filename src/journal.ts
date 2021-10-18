@@ -1,24 +1,15 @@
 import { writeFile, readFile, access, mkdir } from 'fs/promises'
-import path from 'path'
-import { Entry, JouralArguments, PrintDirection, PrintOptions } from './types'
+import { join as pathJoin } from 'path'
+import { Entry, JournalArguments, PrintDirection, PrintOptions } from './types'
 import colors from 'colors'
 import moment from 'moment'
 import { take, takeRight } from 'lodash'
 
 colors.enable()
 
-interface Journal {
-	save(): Promise<void>
-	print(options: PrintOptions): void
-	search(regExp: string): void
-	addEntry(text: string): Promise<void>
-	getNextId(): number
-	getName(): string
-}
-
-export async function getJournal(journalName: string): Promise<Journal> {
-	const directoryName = path.join(__dirname, '../entries')
-	const pathName = path.join(directoryName, `${journalName}.json`)
+export async function getJournal(journalName: string): Promise<IJournal> {
+	const directoryName = pathJoin(__dirname, '../entries')
+	const pathName = pathJoin(directoryName, `${journalName}.json`)
 	let entries: Entry[] = []
 
 	await mkdir(directoryName, { recursive: true })
@@ -29,7 +20,7 @@ export async function getJournal(journalName: string): Promise<Journal> {
 		entries = JSON.parse(buffer.toString())
 	} catch (error) {}
 
-	return new JournalImpl({
+	return new Journal({
 		journalName: journalName,
 		directoryName: directoryName,
 		pathName: pathName,
@@ -37,18 +28,27 @@ export async function getJournal(journalName: string): Promise<Journal> {
 	})
 }
 
-class JournalImpl implements Journal {
+interface IJournal {
+	save(): Promise<void>
+	print(options: PrintOptions): void
+	search(regExp: string): void
+	addEntry(text: string): Promise<void>
+	getNextId(): number
+	getName(): string
+}
+
+class Journal implements IJournal {
 	private journalName: string
 	private pathName: string
 	private entries: Entry[]
 
-	constructor(args: JouralArguments) {
+	constructor(args: JournalArguments) {
 		this.journalName = args.journalName
 		this.pathName = args.pathName
 		this.entries = args.entries
 	}
-	getName(): string {
-		return this.journalName;
+	public getName(): string {
+		return this.journalName
 	}
 	public getNextId(): number {
 		return this.entries.length + 1
@@ -59,23 +59,22 @@ class JournalImpl implements Journal {
 	}
 
 	private printSet(entries: Entry[]) {
-		console.log(`\n'${this.journalName.bold}'\n`)
+		console.log(`'${this.journalName.bold}'\n`)
 		for (const entry of entries) {
 			const aMoment = moment(entry.timestamp)
 			const displayMoment = aMoment.format('dddd MMMM Do YYYY, h:mm:ss a')
-			console.log("%s\n%s %s\n", displayMoment.blue.bold, entry.id.toString().green.bold, entry.text)
+			console.log(`${displayMoment.blue.bold}\n${entry.id.toString().green.bold} ${entry.text}\n`)
 		}
-		console.log("total: %s\n", entries.length.toString().yellow)
+		console.log(`total: ${entries.length.toString().yellow}\n`)
 	}
 
 	public print(options: PrintOptions) {
-		let entriesToPrint = this.entries
 		const takeFunction = options.printDirection == PrintDirection.Front ? take : takeRight
-		entriesToPrint = takeFunction(entriesToPrint, options.amount)
+		const entriesToPrint = takeFunction(this.entries, options.amount)
 		this.printSet(entriesToPrint)
 	}
 	
-	search(regExpStr: string): void {
+	public search(regExpStr: string): void {
 		const getRegex = () => new RegExp(regExpStr, 'ig')
 		let regex = getRegex()
 
@@ -85,9 +84,8 @@ class JournalImpl implements Journal {
 				// add colored highlights for matches
 				regex = getRegex()
 				const wordMatches: string[] = []
-				let match: RegExpExecArray | null = null
 				while (true) {
-					match = regex.exec(entry.text)
+					const match = regex.exec(entry.text)
 					if (match) {
 						wordMatches.push(match[0])
 					} else {

@@ -4,7 +4,7 @@ export interface Entry {
 	text: string
 }
 
-export interface JouralArguments {
+export interface JournalArguments {
 	journalName: string,
 	directoryName: string,
 	pathName: string,
