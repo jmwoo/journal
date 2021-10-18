@@ -59,7 +59,7 @@ class JournalImpl implements Journal {
 	}
 
 	private printSet(entries: Entry[]) {
-		console.log(`\n${this.journalName}\n`)
+		console.log(`\n'${this.journalName.bold}'\n`)
 		for (const entry of entries) {
 			const aMoment = moment(entry.timestamp)
 			const displayMoment = aMoment.format('dddd MMMM Do YYYY, h:mm:ss a')
