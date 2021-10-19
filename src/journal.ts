@@ -3,7 +3,6 @@ import { join as pathJoin } from 'path'
 import { Entry, JournalArguments, PrintDirection, PrintOptions } from './types'
 import colors from 'colors'
 import moment from 'moment'
-import { take, takeRight } from 'lodash'
 
 colors.enable()
 
@@ -69,8 +68,12 @@ class Journal implements IJournal {
 	}
 
 	public print(options: PrintOptions) {
-		const takeFunction = options.printDirection == PrintDirection.First ? take : takeRight
-		const entriesToPrint = takeFunction(this.entries, options.amount)
+		let entriesToPrint: Entry[] = []
+		if (options.printDirection == PrintDirection.First) {
+			entriesToPrint = this.entries.slice(0, options.amount)
+		} else if (options.printDirection == PrintDirection.Last) {
+			entriesToPrint = this.entries.slice(-options.amount)
+		}
 		this.printSet(entriesToPrint)
 	}
 
