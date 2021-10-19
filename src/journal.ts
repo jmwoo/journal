@@ -69,7 +69,7 @@ class Journal implements IJournal {
 	}
 
 	public print(options: PrintOptions) {
-		const takeFunction = options.printDirection == PrintDirection.Front ? take : takeRight
+		const takeFunction = options.printDirection == PrintDirection.First ? take : takeRight
 		const entriesToPrint = takeFunction(this.entries, options.amount)
 		this.printSet(entriesToPrint)
 	}

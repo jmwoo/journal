@@ -17,6 +17,6 @@ export interface PrintOptions {
 }
 
 export enum PrintDirection {
-	Front,
-	Back
+	First,
+	Last
 }

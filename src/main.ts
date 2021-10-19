@@ -21,11 +21,11 @@ import readline from 'readline'
 
 	if (args.print) {
 		journal.print({
-			printDirection: args.first ? PrintDirection.Front : PrintDirection.Back,
+			printDirection: args.first ? PrintDirection.First : PrintDirection.Last,
 			amount: (args.first || args.last || Number.MAX_SAFE_INTEGER)
 		})
 	}
-	else if (args.search && args.search.trim() != '') {
+	else if (args.search.trim() != '') {
 		journal.search(args.search)
 	}
 	else if (args.write) {
