@@ -5,18 +5,18 @@ import readline from 'readline'
 
 (async () => {
 	const args = await yargs(process.argv.slice(2)).options({
-		journal: {type: 'string', default: 'main', alias: 'j'},
-		write: {type: 'boolean', default: false, alias: 'w'},
-		print: {type: 'boolean', default: false, alias: 'p'},
-		search: {type: 'string', alias: 's' },
-		first: {type: 'number', alias: 'f'},
-		last: {type: 'number', alias: 'l'}
+		journal: { type: 'string', default: 'main', alias: 'j' },
+		write: { type: 'boolean', default: false, alias: 'w' },
+		print: { type: 'boolean', default: false, alias: 'p' },
+		search: { type: 'string', default: '', alias: 's' },
+		first: { type: 'number', alias: 'f' },
+		last: { type: 'number', alias: 'l' }
 	}).parse()
 
-	if (!args.print || !args.search || !args.write) {
+	if ([args.print, args.write, args.search != ''].every(a => !a)) {
 		return
 	}
-	
+
 	const journal = await getJournal(args.journal)
 
 	if (args.print) {
@@ -36,7 +36,7 @@ import readline from 'readline'
 		}
 		rl.on('line', async (text) => {
 			text = text.trim()
-			if (text) {
+			if (text != '') {
 				await journal.addEntry(text)
 			}
 			setPrompt()

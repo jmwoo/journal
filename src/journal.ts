@@ -18,7 +18,7 @@ export async function getJournal(journalName: string): Promise<IJournal> {
 		await access(pathName)
 		const buffer = await readFile(pathName)
 		entries = JSON.parse(buffer.toString())
-	} catch (error) {}
+	} catch (error) { }
 
 	return new Journal({
 		journalName: journalName,
@@ -73,7 +73,7 @@ class Journal implements IJournal {
 		const entriesToPrint = takeFunction(this.entries, options.amount)
 		this.printSet(entriesToPrint)
 	}
-	
+
 	public search(regExpStr: string): void {
 		const getRegex = () => new RegExp(regExpStr, 'ig')
 		let regex = getRegex()
