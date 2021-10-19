@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "dependencies": {
     "colors": "^1.4.0",
-    "moment": "^2.29.1",
+    "date-fns": "^2.25.0",
     "yargs": "^17.2.1"
   },
   "scripts": {

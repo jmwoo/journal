@@ -2,7 +2,7 @@ import { writeFile, readFile, access, mkdir } from 'fs/promises'
 import { join as pathJoin } from 'path'
 import { Entry, JournalArguments, PrintDirection, PrintOptions } from './types'
 import colors from 'colors'
-import moment from 'moment'
+import { parseISO as dateParseISO, format as dateFormat } from 'date-fns'
 
 colors.enable()
 
@@ -60,9 +60,9 @@ class Journal implements IJournal {
 	private printSet(entries: Entry[]) {
 		console.log(`'${this.journalName.bold}'\n`)
 		for (const entry of entries) {
-			const aMoment = moment(entry.timestamp)
-			const displayMoment = aMoment.format('dddd MMMM Do YYYY, h:mm:ss a')
-			console.log(`${displayMoment.blue.bold}\n${entry.id.toString().green.bold} ${entry.text}\n`)
+			const date = dateParseISO(entry.timestamp)
+			const displayDate = dateFormat(date, 'EEEE LLLL do yyyy h:mm:ss aaa')
+			console.log(`${displayDate.blue.bold}\n${entry.id.toString().green.bold} ${entry.text}\n`)
 		}
 		console.log(`total: ${entries.length.toString().yellow}\n`)
 	}
