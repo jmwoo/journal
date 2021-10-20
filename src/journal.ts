@@ -65,15 +65,8 @@ class Journal implements IJournal {
 		console.log(`total: ${entries.length.toString().yellow}\n`)
 	}
 	public print(options: PrintOptions) {
-		let entriesToPrint: Entry[] = []
-
-		let f = PrintDirection.First ? (e: Entry[]) => e.slice(0, options.amount) : (e: Entry[]) => e.slice(-options.amount)
-
-		if (options.printDirection == PrintDirection.First) {
-			entriesToPrint = this.entries.slice(0, options.amount)
-		} else if (options.printDirection == PrintDirection.Last) {
-			entriesToPrint = this.entries.slice(-options.amount)
-		}
+		const take = PrintDirection.First ? (e: Entry[]) => e.slice(0, options.amount) : (e: Entry[]) => e.slice(-options.amount)
+		const entriesToPrint = take(this.entries)
 		this.printSet(entriesToPrint)
 	}
 	public search(regExpStr: string): void {
