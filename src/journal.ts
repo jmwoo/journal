@@ -1,8 +1,9 @@
 import { writeFile, readFile, access, mkdir } from 'fs/promises'
 import { join as pathJoin } from 'path'
-import { Entry, JournalArguments, PrintDirection, PrintOptions } from './types'
 import colors from 'colors'
 import { parseISO as dateParseISO, format as dateFormat } from 'date-fns'
+import { Entry, JournalArguments, PrintDirection, PrintOptions } from './types'
+import { fileExists } from './util'
 
 colors.enable()
 
@@ -13,11 +14,10 @@ export async function getJournal(journalName: string): Promise<IJournal> {
 
 	await mkdir(directoryName, { recursive: true })
 
-	try {
-		await access(pathName)
+	if (await fileExists(pathName)) {
 		const buffer = await readFile(pathName)
 		entries = JSON.parse(buffer.toString())
-	} catch (error) { }
+	}
 
 	return new Journal({
 		journalName: journalName,
@@ -52,11 +52,9 @@ class Journal implements IJournal {
 	public getNextId(): number {
 		return this.entries.length + 1
 	}
-
 	public async save() {
 		await writeFile(this.pathName, JSON.stringify(this.entries))
 	}
-
 	private printSet(entries: Entry[]) {
 		console.log(`'${this.journalName.bold}'\n`)
 		for (const entry of entries) {
@@ -66,7 +64,6 @@ class Journal implements IJournal {
 		}
 		console.log(`total: ${entries.length.toString().yellow}\n`)
 	}
-
 	public print(options: PrintOptions) {
 		let entriesToPrint: Entry[] = []
 		if (options.printDirection == PrintDirection.First) {
@@ -76,7 +73,6 @@ class Journal implements IJournal {
 		}
 		this.printSet(entriesToPrint)
 	}
-
 	public search(regExpStr: string): void {
 		const getRegex = () => new RegExp(regExpStr, 'ig')
 		let regex = getRegex()
@@ -102,10 +98,9 @@ class Journal implements IJournal {
 			})
 		this.printSet(matchedEntries)
 	}
-
-	async addEntry(text: string): Promise<void> {
+	public async addEntry(text: string): Promise<void> {
 		if (text == null || text.trim() == '') {
-			console.log('entry text invalid')
+			console.error('entry text invalid')
 			return
 		}
 		this.entries.push({

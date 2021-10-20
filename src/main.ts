@@ -24,11 +24,9 @@ import readline from 'readline'
 			printDirection: args.first ? PrintDirection.First : PrintDirection.Last,
 			amount: (args.first || args.last || Number.MAX_SAFE_INTEGER)
 		})
-	}
-	else if (args.search.trim() != '') {
+	} else if (args.search.trim() != '') {
 		journal.search(args.search)
-	}
-	else if (args.write) {
+	} else if (args.write) {
 		const rl = readline.createInterface(process.stdin, process.stdout)
 		const setPrompt = () => {
 			rl.setPrompt(`'${journal.getName()}' (${journal.getNextId()}) >>> `)
