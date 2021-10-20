@@ -13,7 +13,7 @@ import readline from 'readline'
 		last: { type: 'number', alias: 'l' }
 	}).parse()
 
-	if ([args.print, args.write, args.search != ''].every(a => !a)) {
+	if ([args.print, args.write, args.search != ''].every(arg => !arg)) {
 		return
 	}
 

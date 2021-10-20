@@ -66,6 +66,9 @@ class Journal implements IJournal {
 	}
 	public print(options: PrintOptions) {
 		let entriesToPrint: Entry[] = []
+
+		let f = PrintDirection.First ? (e: Entry[]) => e.slice(0, options.amount) : (e: Entry[]) => e.slice(-options.amount)
+
 		if (options.printDirection == PrintDirection.First) {
 			entriesToPrint = this.entries.slice(0, options.amount)
 		} else if (options.printDirection == PrintDirection.Last) {
