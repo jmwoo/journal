@@ -1,7 +1,6 @@
 import { getJournal } from './journal'
 import { PrintDirection } from './types'
 import yargs from 'yargs'
-import readline from 'readline'
 
 (async () => {
 	const args = await yargs(process.argv.slice(2)).options({
@@ -27,18 +26,6 @@ import readline from 'readline'
 	} else if (args.search.trim() != '') {
 		journal.search(args.search)
 	} else if (args.write) {
-		const rl = readline.createInterface(process.stdin, process.stdout)
-		const setPrompt = () => {
-			rl.setPrompt(`'${journal.getName()}' (${journal.getNextId()}) >>> `)
-			rl.prompt()
-		}
-		rl.on('line', async (text) => {
-			text = text.trim()
-			if (text != '') {
-				await journal.addEntry(text)
-			}
-			setPrompt()
-		})
-		setPrompt()
+		await journal.write()
 	}
 })()

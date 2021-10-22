@@ -4,6 +4,7 @@ import colors from 'colors'
 import { parseISO as dateParseISO, format as dateFormat } from 'date-fns'
 import { Entry, JournalArguments, PrintDirection, PrintOptions } from './types'
 import { fileExists } from './util'
+import readline from 'readline'
 
 colors.enable()
 
@@ -28,12 +29,9 @@ export async function getJournal(journalName: string): Promise<IJournal> {
 }
 
 interface IJournal {
-	save(): Promise<void>
 	print(options: PrintOptions): void
 	search(regExp: string): void
-	addEntry(text: string): Promise<void>
-	getNextId(): number
-	getName(): string
+	write(): Promise<void>
 }
 
 class Journal implements IJournal {
@@ -46,35 +44,15 @@ class Journal implements IJournal {
 		this.pathName = args.pathName
 		this.entries = args.entries
 	}
-	public getName(): string {
-		return this.journalName
-	}
-	public getNextId(): number {
-		if (this.entries.length == 0) {
-			return 1
-		}
-		const lastEntry = this.entries[this.entries.length - 1]
-		return lastEntry.id + 1
-	}
-	public async save() {
-		await writeFile(this.pathName, JSON.stringify(this.entries))
-	}
-	private printSet(entries: Entry[]) {
-		console.log(`'${this.journalName.bold}'\n`)
-		for (const entry of entries) {
-			const date = dateParseISO(entry.timestamp)
-			const displayDate = dateFormat(date, 'EEEE LLLL do yyyy h:mm:ss aaa')
-			console.log(`${displayDate.blue.bold}\n${entry.id.toString().green.bold} ${entry.text}\n`)
-		}
-		console.log(`total: ${entries.length.toString().yellow}\n`)
-	}
-	public print(options: PrintOptions) {
+
+	public print(options: PrintOptions): void {
 		const take = PrintDirection.First ? 
 			(e: Entry[]) => e.slice(0, options.amount) : 
 			(e: Entry[]) => e.slice(-options.amount)
 		const entriesToPrint = take(this.entries)
 		this.printSet(entriesToPrint)
 	}
+
 	public search(regExpStr: string): void {
 		const getRegex = () => new RegExp(regExpStr, 'ig')
 		let regex = getRegex()
@@ -100,7 +78,46 @@ class Journal implements IJournal {
 			})
 		this.printSet(matchedEntries)
 	}
-	public async addEntry(text: string): Promise<void> {
+
+	public async write(): Promise<void> {
+		const rl = readline.createInterface(process.stdin, process.stdout)
+		const setPrompt = () => {
+			rl.setPrompt(`'${this.journalName}' (${this.getNextId()}) >>> `)
+			rl.prompt()
+		}
+		rl.on('line', async (text) => {
+			text = text.trim()
+			if (text != '') {
+				await this.addEntry(text)
+			}
+			setPrompt()
+		})
+		setPrompt()
+	}
+	
+	private getNextId(): number {
+		if (this.entries.length == 0) {
+			return 1
+		}
+		const lastEntry = this.entries[this.entries.length - 1]
+		return lastEntry.id + 1
+	}
+	
+	private async save(): Promise<void> {
+		await writeFile(this.pathName, JSON.stringify(this.entries))
+	}
+	
+	private printSet(entries: Entry[]): void {
+		console.log(`'${this.journalName.bold}'\n`)
+		for (const entry of entries) {
+			const date = dateParseISO(entry.timestamp)
+			const displayDate = dateFormat(date, 'EEEE LLLL do yyyy h:mm:ss aaa')
+			console.log(`${displayDate.blue.bold}\n${entry.id.toString().green.bold} ${entry.text}\n`)
+		}
+		console.log(`total: ${entries.length.toString().yellow}\n`)
+	}
+	
+	private async addEntry(text: string): Promise<void> {
 		if (!text || text.trim() == '') {
 			console.error('entry text invalid')
 			return
@@ -111,5 +128,5 @@ class Journal implements IJournal {
 			id: this.getNextId()
 		})
 		await this.save()
-	}
+	}	
 }
