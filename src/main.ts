@@ -1,6 +1,3 @@
-let x = 1;
-let y = x + 1;
-
 import { getJournal } from './journal'
 import { PrintDirection } from './types'
 import yargs from 'yargs'
