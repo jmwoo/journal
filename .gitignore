@@ -3,5 +3,4 @@ entries/
 mutate.js
 archive_mac.sh
 node_modules/
-launch.json
 dist

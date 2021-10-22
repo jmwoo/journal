@@ -46,8 +46,8 @@ class Journal implements IJournal {
 	}
 
 	public print(options: PrintOptions): void {
-		const take = PrintDirection.First ? 
-			(e: Entry[]) => e.slice(0, options.amount) : 
+		const take = PrintDirection.First ?
+			(e: Entry[]) => e.slice(0, options.amount) :
 			(e: Entry[]) => e.slice(-options.amount)
 		const entriesToPrint = take(this.entries)
 		this.printSet(entriesToPrint)
@@ -94,7 +94,7 @@ class Journal implements IJournal {
 		})
 		setPrompt()
 	}
-	
+
 	private getNextId(): number {
 		if (this.entries.length == 0) {
 			return 1
@@ -102,11 +102,11 @@ class Journal implements IJournal {
 		const lastEntry = this.entries[this.entries.length - 1]
 		return lastEntry.id + 1
 	}
-	
+
 	private async save(): Promise<void> {
 		await writeFile(this.pathName, JSON.stringify(this.entries))
 	}
-	
+
 	private printSet(entries: Entry[]): void {
 		console.log(`'${this.journalName.bold}'\n`)
 		for (const entry of entries) {
@@ -116,7 +116,7 @@ class Journal implements IJournal {
 		}
 		console.log(`total: ${entries.length.toString().yellow}\n`)
 	}
-	
+
 	private async addEntry(text: string): Promise<void> {
 		if (!text || text.trim() == '') {
 			console.error('entry text invalid')
@@ -128,5 +128,5 @@ class Journal implements IJournal {
 			id: this.getNextId()
 		})
 		await this.save()
-	}	
+	}
 }
