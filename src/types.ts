@@ -8,7 +8,10 @@ export interface JournalArguments {
 	journalName: string,
 	directoryName: string,
 	pathName: string,
-	entries: Entry[]
+	entries: Entry[],
+	output: (msg: string) => void
+	errorput: (msg: string) => void
+	useColors: boolean
 }
 
 export interface PrintOptions {

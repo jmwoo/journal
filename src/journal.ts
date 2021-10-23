@@ -1,12 +1,10 @@
-import { writeFile, readFile, access, mkdir } from 'fs/promises'
+import { writeFile, readFile, mkdir } from 'fs/promises'
 import { join as pathJoin } from 'path'
 import colors from 'colors'
 import { parseISO as dateParseISO, format as dateFormat } from 'date-fns'
 import { Entry, JournalArguments, PrintDirection, PrintOptions } from './types'
 import { fileExists } from './util'
 import readline from 'readline'
-
-colors.enable()
 
 export async function getJournal(journalName: string): Promise<IJournal> {
 	const directoryName = pathJoin(__dirname, '../entries')
@@ -24,7 +22,10 @@ export async function getJournal(journalName: string): Promise<IJournal> {
 		journalName: journalName,
 		directoryName: directoryName,
 		pathName: pathName,
-		entries: entries
+		entries: entries,
+		output: console.log,
+		errorput: console.error,
+		useColors: true
 	})
 }
 
@@ -38,11 +39,16 @@ class Journal implements IJournal {
 	private journalName: string
 	private pathName: string
 	private entries: Entry[]
+	private output: (msg: string) => void
+	private errorput: (msg: string) => void
 
 	constructor(args: JournalArguments) {
 		this.journalName = args.journalName
 		this.pathName = args.pathName
 		this.entries = args.entries
+		this.output = args.output
+		this.errorput = args.errorput
+		args.useColors ? colors.enable() : colors.disable()
 	}
 
 	public print(options: PrintOptions): void {
@@ -82,7 +88,7 @@ class Journal implements IJournal {
 	public async write(): Promise<void> {
 		const rl = readline.createInterface(process.stdin, process.stdout)
 		const setPrompt = () => {
-			rl.setPrompt(`'${this.journalName}' (${this.getNextId()}) >>> `)
+			rl.setPrompt(`${this.getNextId().toString().green.bold} >>> `)
 			rl.prompt()
 		}
 		rl.on('line', async (text) => {
@@ -92,6 +98,7 @@ class Journal implements IJournal {
 			}
 			setPrompt()
 		})
+		this.output(`'${this.journalName.bold}'`)
 		setPrompt()
 	}
 
@@ -108,18 +115,18 @@ class Journal implements IJournal {
 	}
 
 	private printSet(entries: Entry[]): void {
-		console.log(`'${this.journalName.bold}'\n`)
+		this.output(`'${this.journalName.bold}'\n`)
 		for (const entry of entries) {
 			const date = dateParseISO(entry.timestamp)
 			const displayDate = dateFormat(date, 'EEEE LLLL do yyyy h:mm:ss aaa')
-			console.log(`${displayDate.blue.bold}\n${entry.id.toString().green.bold} ${entry.text}\n`)
+			this.output(`${displayDate.blue.bold}\n${entry.id.toString().green.bold} ${entry.text}\n`)
 		}
-		console.log(`total: ${entries.length.toString().yellow}\n`)
+		this.output(`total: ${entries.length.toString().yellow}\n`)
 	}
 
 	private async addEntry(text: string): Promise<void> {
 		if (!text || text.trim() == '') {
-			console.error('entry text invalid')
+			this.errorput('entry text invalid')
 			return
 		}
 		this.entries.push({
