@@ -14,8 +14,7 @@ export async function getJournal(journalName: string): Promise<IJournal> {
 	await mkdir(directoryName, { recursive: true })
 
 	if (await fileExists(pathName)) {
-		const buffer = await readFile(pathName)
-		entries = JSON.parse(buffer.toString())
+		entries = JSON.parse(await readFile(pathName, {encoding: 'utf8'}))
 	}
 
 	return new Journal({
