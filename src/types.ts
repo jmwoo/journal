@@ -6,11 +6,9 @@ export interface Entry {
 
 export interface JournalArguments {
 	journalName: string,
-	directoryName: string,
-	pathName: string,
 	entries: Entry[],
-	output: (msg: string) => void
-	errorput: (msg: string) => void
+	saveToFile: (entries: Entry[]) => Promise<void>,
+	output: IOutput
 	useColors: boolean
 }
 
@@ -22,4 +20,9 @@ export interface PrintOptions {
 export enum PrintDirection {
 	First,
 	Last
+}
+
+export interface IOutput {
+	out: (msg: string) => void
+	error: (msg: string) => void
 }
