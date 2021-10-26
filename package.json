@@ -8,11 +8,13 @@
   },
   "scripts": {
     "start": "tsc && node dist/journal.js",
-    "build": "tsc"
+    "build": "tsc",
+    "format": "prettier --config .prettierrc 'src/**/*.ts' --write"
   },
   "devDependencies": {
     "@types/node": "^16.11.1",
     "@types/yargs": "^17.0.4",
+    "prettier": "^2.4.1",
     "typescript": "^4.4.4"
   }
 }

@@ -23,7 +23,7 @@ export async function getJournal(journalName: string): Promise<IJournal> {
 		saveToFile: saveToFile,
 		entries: entries,
 		output: {
-			out: console.log,
+			log: console.log,
 			error: console.error
 		},
 		useColors: true
@@ -37,23 +37,25 @@ interface IJournal {
 }
 
 class Journal implements IJournal {
-	private journalName: string
+	private readonly journalName: string
 	private entries: Entry[]
-	private output: IOutput
-	private saveToFile: (entries: Entry[]) => Promise<void>
+	private readonly output: IOutput
+	private readonly saveToFile: (entries: Entry[]) => Promise<void>
+	private readonly isColorsEnabled: boolean
 
 	constructor(args: JournalArguments) {
 		this.journalName = args.journalName
 		this.entries = args.entries
 		this.saveToFile = args.saveToFile
 		this.output = args.output
-		args.useColors ? colors.enable() : colors.disable()
+		this.isColorsEnabled = args.useColors
+		this.isColorsEnabled ? colors.enable() : colors.disable()
 	}
 
 	public print(options: PrintOptions): void {
-		const take = PrintDirection.First ?
-			(e: Entry[]) => e.slice(0, options.amount) :
-			(e: Entry[]) => e.slice(-options.amount)
+		const take = PrintDirection.First
+			? (e: Entry[]) => e.slice(0, options.amount)
+			: (e: Entry[]) => e.slice(-options.amount)
 		const entriesToPrint = take(this.entries)
 		this.printSet(entriesToPrint)
 	}
@@ -62,9 +64,11 @@ class Journal implements IJournal {
 		const getRegex = () => new RegExp(regExpStr, 'ig')
 		let regex = getRegex()
 
-		const matchedEntries = this.entries
+		let matchedEntries = this.entries
 			.filter(entry => regex.test(entry.text))
-			.map(entry => {
+
+		if (this.isColorsEnabled) {
+			matchedEntries = matchedEntries.map(entry => {
 				// add colored highlights for matches
 				regex = getRegex()
 				const wordMatches: string[] = []
@@ -81,6 +85,8 @@ class Journal implements IJournal {
 				}
 				return entry
 			})
+		}
+			
 		this.printSet(matchedEntries)
 	}
 
@@ -97,7 +103,7 @@ class Journal implements IJournal {
 			}
 			setPrompt()
 		})
-		this.output.out(`'${this.journalName.bold}'`)
+		this.output.log(`'${this.journalName.bold}'`)
 		setPrompt()
 	}
 
@@ -110,13 +116,15 @@ class Journal implements IJournal {
 	}
 
 	private printSet(entries: Entry[]): void {
-		this.output.out(`'${this.journalName.bold}'\n`)
+		this.output.log(`'${this.journalName.bold}'\n`)
 		for (const entry of entries) {
 			const date = dateParseISO(entry.timestamp)
 			const displayDate = dateFormat(date, 'EEEE LLLL do yyyy h:mm:ss aaa')
-			this.output.out(`${displayDate.blue.bold}\n${entry.id.toString().green.bold} ${entry.text}\n`)
+			this.output.log(
+				`${displayDate.blue.bold}\n${entry.id.toString().green.bold} ${entry.text}\n`
+			)
 		}
-		this.output.out(`total: ${entries.length.toString().yellow}\n`)
+		this.output.log(`total: ${entries.length.toString().yellow}\n`)
 	}
 
 	private async addEntry(text: string): Promise<void> {

@@ -1,20 +1,20 @@
 export interface Entry {
-	timestamp: string,
-	id: number,
+	timestamp: string
+	id: number
 	text: string
 }
 
 export interface JournalArguments {
-	journalName: string,
-	entries: Entry[],
-	saveToFile: (entries: Entry[]) => Promise<void>,
+	journalName: string
+	entries: Entry[]
+	saveToFile: (entries: Entry[]) => Promise<void>
 	output: IOutput
 	useColors: boolean
 }
 
 export interface PrintOptions {
 	printDirection: PrintDirection
-	amount: number,
+	amount: number
 }
 
 export enum PrintDirection {
