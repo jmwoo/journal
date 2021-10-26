@@ -85,7 +85,6 @@ class Journal implements IJournal {
 				return entry
 			})
 		}
-
 		this.printSet(matchedEntries)
 	}
 
@@ -95,7 +94,7 @@ class Journal implements IJournal {
 			rl.setPrompt(`${this.getNextId().toString().green.bold} >>> `)
 			rl.prompt()
 		}
-		rl.on('line', async text => {
+		rl.on('line', async (text) => {
 			text = text.trim()
 			if (text != '') {
 				await this.addEntry(text)
