@@ -64,8 +64,7 @@ class Journal implements IJournal {
 		const getRegex = () => new RegExp(regExpStr, 'ig')
 		let regex = getRegex()
 
-		let matchedEntries = this.entries
-			.filter(entry => regex.test(entry.text))
+		let matchedEntries = this.entries.filter(entry => regex.test(entry.text))
 
 		if (this.isColorsEnabled) {
 			matchedEntries = matchedEntries.map(entry => {
@@ -86,7 +85,7 @@ class Journal implements IJournal {
 				return entry
 			})
 		}
-			
+
 		this.printSet(matchedEntries)
 	}
 
@@ -96,7 +95,7 @@ class Journal implements IJournal {
 			rl.setPrompt(`${this.getNextId().toString().green.bold} >>> `)
 			rl.prompt()
 		}
-		rl.on('line', async (text) => {
+		rl.on('line', async text => {
 			text = text.trim()
 			if (text != '') {
 				await this.addEntry(text)

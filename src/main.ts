@@ -1,7 +1,6 @@
 import { getJournal } from './journal'
 import { PrintDirection } from './types'
 import yargs from 'yargs'
-
 ;(async () => {
 	const args = await yargs(process.argv.slice(2))
 		.options({
@@ -11,7 +10,8 @@ import yargs from 'yargs'
 			search: { type: 'string', default: '', alias: 's' },
 			first: { type: 'number', alias: 'f' },
 			last: { type: 'number', alias: 'l' }
-		}).parse()
+		})
+		.parse()
 
 	if ([args.print, args.write, args.search != ''].every(arg => !arg)) {
 		return
