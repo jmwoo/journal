@@ -23,6 +23,6 @@ export enum PrintDirection {
 }
 
 export interface IOutput {
-	out: (msg: string) => void
+	log: (msg: string) => void
 	error: (msg: string) => void
 }
