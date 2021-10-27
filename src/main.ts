@@ -1,7 +1,6 @@
 import { getJournal } from './journal'
 import { PrintDirection } from './types'
 import yargs from 'yargs'
-
 ;(async () => {
 	const args = await yargs(process.argv.slice(2))
 		.options({
@@ -9,12 +8,13 @@ import yargs from 'yargs'
 			write: { type: 'boolean', default: false, alias: 'w' },
 			print: { type: 'boolean', default: false, alias: 'p' },
 			search: { type: 'string', default: '', alias: 's' },
+			metrics: { type: 'boolean', default: false, alias: 'm' },
 			first: { type: 'number', alias: 'f' },
 			last: { type: 'number', alias: 'l' }
 		})
 		.parse()
 
-	if ([args.print, args.write, args.search != ''].every(arg => !arg)) {
+	if ([args.print, args.write, args.search != '', args.metrics].every(arg => !arg)) {
 		return
 	}
 
@@ -29,5 +29,7 @@ import yargs from 'yargs'
 		journal.search(args.search)
 	} else if (args.write) {
 		await journal.write()
+	} else if (args.metrics) {
+		journal.viewMetrics()
 	}
 })()

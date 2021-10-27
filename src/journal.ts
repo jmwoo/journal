@@ -5,6 +5,7 @@ import { parseISO as dateParseISO, format as dateFormat } from 'date-fns'
 import { Entry, IOutput, JournalArguments, PrintDirection, PrintOptions } from './types'
 import { fileExists } from './util'
 import readline from 'readline'
+import { getMetrics } from './metrics'
 
 export async function getJournal(journalName: string): Promise<IJournal> {
 	const directoryName = pathJoin(__dirname, '../entries')
@@ -34,6 +35,7 @@ interface IJournal {
 	print(options: PrintOptions): void
 	search(regExp: string): void
 	write(): Promise<void>
+	viewMetrics(): void
 }
 
 class Journal implements IJournal {
@@ -136,5 +138,11 @@ class Journal implements IJournal {
 			id: this.getNextId()
 		})
 		await this.saveToFile(this.entries)
+	}
+
+	public viewMetrics(): void {
+		const metrics = getMetrics(this.entries)
+		this.output.log(`metrics loaded but printing is not implemented`)
+		// TODO: output metrics
 	}
 }
