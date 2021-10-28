@@ -22,7 +22,7 @@ import yargs from 'yargs'
 
 	if (args.print) {
 		journal.print({
-			printDirection: args.first ? PrintDirection.First : PrintDirection.Last,
+			printDirection: args.last ? PrintDirection.Last : PrintDirection.First,
 			amount: args.first || args.last || Number.MAX_SAFE_INTEGER
 		})
 	} else if (args.search.trim() != '') {

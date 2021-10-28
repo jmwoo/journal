@@ -1,3 +1,5 @@
+import { IDateService } from './dateservice'
+
 export interface Entry {
 	timestamp: string
 	id: number
@@ -10,6 +12,7 @@ export interface JournalArguments {
 	saveToFile: (entries: Entry[]) => Promise<void>
 	output: IOutput
 	useColors: boolean
+	dateService: IDateService
 }
 
 export interface PrintOptions {
