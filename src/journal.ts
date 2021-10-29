@@ -58,9 +58,10 @@ export class Journal implements IJournal {
 	}
 
 	public print(options: PrintOptions): void {
-		const take = options.printDirection == PrintDirection.First
-			? (e: Entry[]) => e.slice(0, options.amount)
-			: (e: Entry[]) => e.slice(-options.amount)
+		const take =
+			options.printDirection == PrintDirection.First
+				? (e: Entry[]) => e.slice(0, options.amount)
+				: (e: Entry[]) => e.slice(-options.amount)
 		const entriesToPrint = take(this.entries)
 		this.printSet(entriesToPrint)
 	}

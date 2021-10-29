@@ -86,7 +86,7 @@ describe('journal.search()', () => {
 			{ id: 4, text: 'jkl', timestamp: '2021-10-29T16:56:31.487Z' }
 		]
 		const journal = new Journal(args)
-		
+
 		journal.search('h')
 
 		expect(output.length).toBe(3)
@@ -105,7 +105,7 @@ describe('journal.print()', () => {
 			{ id: 3, text: 'ghi', timestamp: '2021-10-28T16:56:31.487Z' }
 		]
 		const journal = new Journal(args)
-		journal.print({printDirection: PrintDirection.First, amount: Number.MAX_SAFE_INTEGER})
+		journal.print({ printDirection: PrintDirection.First, amount: Number.MAX_SAFE_INTEGER })
 
 		expect(output[1].indexOf('abc') >= 0).toBe(true)
 		expect(output[2].indexOf('def') >= 0).toBe(true)
@@ -122,7 +122,7 @@ describe('journal.print()', () => {
 			{ id: 3, text: 'ghi', timestamp: '2021-10-28T16:56:31.487Z' }
 		]
 		const journal = new Journal(args)
-		journal.print({printDirection: PrintDirection.First, amount: 1})
+		journal.print({ printDirection: PrintDirection.First, amount: 1 })
 
 		expect(output.length).toBe(3)
 		expect(output[1].indexOf('abc') >= 0).toBe(true)
@@ -138,7 +138,7 @@ describe('journal.print()', () => {
 			{ id: 3, text: 'ghi', timestamp: '2021-10-28T16:56:31.487Z' }
 		]
 		const journal = new Journal(args)
-		journal.print({printDirection: PrintDirection.Last, amount: 1})
+		journal.print({ printDirection: PrintDirection.Last, amount: 1 })
 
 		expect(output.length).toBe(3)
 		expect(output[1].indexOf('ghi') >= 0).toBe(true)
