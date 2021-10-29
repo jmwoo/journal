@@ -122,7 +122,7 @@ export class Journal implements IJournal {
 	}
 
 	private printSet(entries: Entry[]): void {
-		this.output.log(`'${this.journalName.bold}'\n`)
+		this.output.log(`'${chalk.bold(this.journalName)}'\n`)
 		for (const entry of entries) {
 			const date = this.dateService.parseTimestamp(entry.timestamp)
 			const displayDate = this.dateService.getDisplayDate(date)
