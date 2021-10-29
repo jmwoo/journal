@@ -2,7 +2,7 @@
   "name": "journal",
   "version": "1.0.0",
   "dependencies": {
-    "colors": "^1.4.0",
+    "chalk": "^4.1.2",
     "date-fns": "^2.25.0",
     "yargs": "^17.2.1"
   },

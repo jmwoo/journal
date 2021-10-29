@@ -1,6 +1,6 @@
 import { writeFile, readFile, mkdir } from 'fs/promises'
 import { join as pathJoin } from 'path'
-import colors from 'colors'
+import chalk from 'chalk'
 import { Entry, IOutput, JournalArguments, PrintDirection, PrintOptions } from './types'
 import { fileExists } from './util'
 import readline from 'readline'
@@ -53,7 +53,9 @@ export class Journal implements IJournal {
 		this.saveToFile = args.saveToFile
 		this.output = args.output
 		this.isColorsEnabled = args.useColors
-		this.isColorsEnabled ? colors.enable() : colors.disable()
+		if (!this.isColorsEnabled) {
+			chalk.level = 0
+		}
 		this.dateService = args.dateService
 	}
 
@@ -86,7 +88,7 @@ export class Journal implements IJournal {
 					}
 				}
 				for (const wordMatch of wordMatches) {
-					entry.text = entry.text.replace(regex, wordMatch.underline.yellow)
+					entry.text = entry.text.replace(regex, chalk.yellow.underline(wordMatch))
 				}
 				return entry
 			})
@@ -97,7 +99,7 @@ export class Journal implements IJournal {
 	public async write(): Promise<void> {
 		const rl = readline.createInterface(process.stdin, process.stdout)
 		const setPrompt = () => {
-			rl.setPrompt(`${this.getNextId().toString().green.bold} >>> `)
+			rl.setPrompt(`${chalk.green.bold(this.getNextId())} >>> `)
 			rl.prompt()
 		}
 		rl.on('line', async text => {
@@ -107,7 +109,7 @@ export class Journal implements IJournal {
 			}
 			setPrompt()
 		})
-		this.output.log(`'${this.journalName.bold}'`)
+		this.output.log(`'${chalk.bold(this.journalName)}'`)
 		setPrompt()
 	}
 
@@ -125,10 +127,10 @@ export class Journal implements IJournal {
 			const date = this.dateService.parseTimestamp(entry.timestamp)
 			const displayDate = this.dateService.getDisplayDate(date)
 			this.output.log(
-				`${displayDate.blue.bold}\n${entry.id.toString().green.bold} ${entry.text}\n`
+				`${chalk.blue.bold(displayDate)}\n${chalk.green.bold(entry.id)} ${entry.text}\n`
 			)
 		}
-		this.output.log(`total: ${entries.length.toString().yellow}\n`)
+		this.output.log(`total: ${chalk.yellow(entries.length)}\n`)
 	}
 
 	public async addEntry(text: string): Promise<void> {
