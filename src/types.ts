@@ -7,12 +7,13 @@ export interface Entry {
 }
 
 export interface JournalArguments {
-	journalName: string
+	getJournalName: () => string
 	entries: Entry[]
 	saveToFile: (entries: Entry[]) => Promise<void>
 	output: IOutput
 	useColors: boolean
 	dateService: IDateService
+	printSet: (entries: Entry[]) => void
 }
 
 export interface PrintOptions {

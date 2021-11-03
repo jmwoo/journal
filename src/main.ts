@@ -14,7 +14,9 @@ import yargs from 'yargs'
 		})
 		.parse()
 
-	if ([args.print, args.write, args.search != '', args.metrics].every(arg => !arg)) {
+	if (
+		[args.print, args.write, Boolean(args.search), args.metrics].every((arg: boolean) => !arg)
+	) {
 		return
 	}
 
@@ -23,7 +25,7 @@ import yargs from 'yargs'
 	if (args.print) {
 		journal.print({
 			printDirection: args.last ? PrintDirection.Last : PrintDirection.First,
-			amount: args.first || args.last || Number.MAX_SAFE_INTEGER
+			amount: args.last || args.first || Number.MAX_SAFE_INTEGER
 		})
 	} else if (args.search.trim() != '') {
 		journal.search(args.search)

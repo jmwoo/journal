@@ -5,7 +5,7 @@ import { parseISO } from 'date-fns'
 
 const getDefaultTestJournalArgs = (): JournalArguments => {
 	return {
-		journalName: 'test',
+		getJournalName: () => 'test',
 		entries: [],
 		saveToFile: e => Promise.resolve(),
 		output: {
@@ -13,13 +13,16 @@ const getDefaultTestJournalArgs = (): JournalArguments => {
 			error: msg => {}
 		},
 		useColors: false,
-		dateService: getDateService()
+		dateService: getDateService(),
+		printSet: e => {}
 	}
 }
 
 describe('journal.getNextId()', () => {
 	test('no entries', () => {
-		const journal = new Journal(getDefaultTestJournalArgs())
+		const args = getDefaultTestJournalArgs()
+		args.entries = []
+		const journal = new Journal(args)
 		expect(journal.getNextId()).toBe(1)
 	})
 
@@ -77,8 +80,8 @@ describe('journal.addEntry()', () => {
 describe('journal.search()', () => {
 	test('search text', () => {
 		const args = getDefaultTestJournalArgs()
-		const output: string[] = []
-		args.output.log = msg => output.push(msg)
+		const toPrint: Entry[] = []
+		args.printSet = es => es.forEach(e => toPrint.push(e))
 		args.entries = [
 			{ id: 1, text: 'abc', timestamp: '2021-10-26T16:56:31.487Z' },
 			{ id: 2, text: 'def', timestamp: '2021-10-27T16:56:31.487Z' },
@@ -89,16 +92,16 @@ describe('journal.search()', () => {
 
 		journal.search('h')
 
-		expect(output.length).toBe(3)
-		expect(output[1].indexOf('ghi') >= 0).toBe(true)
+		expect(toPrint.length).toBe(1)
+		expect(toPrint[0].id).toBe(3)
 	})
 })
 
 describe('journal.print()', () => {
 	test('print all entries', () => {
 		const args = getDefaultTestJournalArgs()
-		const output: string[] = []
-		args.output.log = msg => output.push(msg)
+		const toPrint: Entry[] = []
+		args.printSet = es => es.forEach(e => toPrint.push(e))
 		args.entries = [
 			{ id: 1, text: 'abc', timestamp: '2021-10-26T16:56:31.487Z' },
 			{ id: 2, text: 'def', timestamp: '2021-10-27T16:56:31.487Z' },
@@ -107,15 +110,14 @@ describe('journal.print()', () => {
 		const journal = new Journal(args)
 		journal.print({ printDirection: PrintDirection.First, amount: Number.MAX_SAFE_INTEGER })
 
-		expect(output[1].indexOf('abc') >= 0).toBe(true)
-		expect(output[2].indexOf('def') >= 0).toBe(true)
-		expect(output[3].indexOf('ghi') >= 0).toBe(true)
+		expect(toPrint.length).toBe(3)
+		expect([1, 2, 3].every(i => toPrint.map(e => e.id).includes(i))).toBe(true)
 	})
 
 	test('print first entry', () => {
 		const args = getDefaultTestJournalArgs()
-		const output: string[] = []
-		args.output.log = msg => output.push(msg)
+		const toPrint: Entry[] = []
+		args.printSet = es => es.forEach(e => toPrint.push(e))
 		args.entries = [
 			{ id: 1, text: 'abc', timestamp: '2021-10-26T16:56:31.487Z' },
 			{ id: 2, text: 'def', timestamp: '2021-10-27T16:56:31.487Z' },
@@ -124,14 +126,14 @@ describe('journal.print()', () => {
 		const journal = new Journal(args)
 		journal.print({ printDirection: PrintDirection.First, amount: 1 })
 
-		expect(output.length).toBe(3)
-		expect(output[1].indexOf('abc') >= 0).toBe(true)
+		expect(toPrint.length).toBe(1)
+		expect(toPrint[0].id).toBe(1)
 	})
 
 	test('print last entry', () => {
 		const args = getDefaultTestJournalArgs()
-		const output: string[] = []
-		args.output.log = msg => output.push(msg)
+		const toPrint: Entry[] = []
+		args.printSet = es => es.forEach(e => toPrint.push(e))
 		args.entries = [
 			{ id: 1, text: 'abc', timestamp: '2021-10-26T16:56:31.487Z' },
 			{ id: 2, text: 'def', timestamp: '2021-10-27T16:56:31.487Z' },
@@ -140,7 +142,7 @@ describe('journal.print()', () => {
 		const journal = new Journal(args)
 		journal.print({ printDirection: PrintDirection.Last, amount: 1 })
 
-		expect(output.length).toBe(3)
-		expect(output[1].indexOf('ghi') >= 0).toBe(true)
+		expect(toPrint.length).toBe(1)
+		expect(toPrint[0].id).toBe(3)
 	})
 })

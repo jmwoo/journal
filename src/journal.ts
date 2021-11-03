@@ -8,28 +8,48 @@ import { getMetrics } from './metrics'
 import { getDateService, IDateService } from './dateservice'
 
 export async function getJournal(journalName: string): Promise<IJournal> {
+	const getJournalName = () => journalName
 	const directoryName = pathJoin(__dirname, '../entries')
-	const pathName = pathJoin(directoryName, `${journalName}.json`)
-	const saveToFile = (e: Entry[]) => writeFile(pathName, JSON.stringify(e))
-	let entries: Entry[] = []
+	const pathName = pathJoin(directoryName, `${getJournalName()}.json`)
+	const saveToFile = (entries: Entry[]) => writeFile(pathName, JSON.stringify(entries))
+	let initEntries: Entry[] = []
 
 	await mkdir(directoryName, { recursive: true })
 
 	if (await fileExists(pathName)) {
-		entries = JSON.parse(await readFile(pathName, { encoding: 'utf8' }))
+		initEntries = JSON.parse(await readFile(pathName, { encoding: 'utf8' }))
 	}
 
+	const output: IOutput = {
+		log: console.log,
+		error: console.error
+	}
+
+	const dateService = getDateService()
+
 	return new Journal({
-		journalName: journalName,
+		getJournalName: getJournalName,
 		saveToFile: saveToFile,
-		entries: entries,
-		output: {
-			log: console.log,
-			error: console.error
-		},
+		entries: initEntries,
+		output: output,
 		useColors: true,
-		dateService: getDateService()
+		dateService: dateService,
+		printSet: getPrintSet(getJournalName(), dateService, output)
 	})
+}
+
+const getPrintSet = (journalName: string, dateService: IDateService, output: IOutput) => {
+	return (entries: Entry[]) => {
+		output.log(`'${chalk.bold(journalName)}'\n`)
+		for (const entry of entries) {
+			const date = dateService.parseTimestamp(entry.timestamp)
+			const displayDate = dateService.getDisplayDate(date)
+			output.log(
+				`${chalk.blue.bold(displayDate)}\n${chalk.green.bold(entry.id)} ${entry.text}\n`
+			)
+		}
+		output.log(`total: ${chalk.yellow(entries.length)}\n`)
+	}
 }
 
 interface IJournal {
@@ -40,15 +60,16 @@ interface IJournal {
 }
 
 export class Journal implements IJournal {
-	private readonly journalName: string
+	private readonly getJournalName: () => string
 	private entries: Entry[]
 	private readonly output: IOutput
 	private readonly saveToFile: (entries: Entry[]) => Promise<void>
 	private readonly isColorsEnabled: boolean
 	private readonly dateService: IDateService
+	private readonly printSet: (entries: Entry[]) => void
 
 	constructor(args: JournalArguments) {
-		this.journalName = args.journalName
+		this.getJournalName = args.getJournalName
 		this.entries = args.entries
 		this.saveToFile = args.saveToFile
 		this.output = args.output
@@ -57,6 +78,7 @@ export class Journal implements IJournal {
 			chalk.level = 0
 		}
 		this.dateService = args.dateService
+		this.printSet = args.printSet
 	}
 
 	public print(options: PrintOptions): void {
@@ -102,14 +124,14 @@ export class Journal implements IJournal {
 			rl.setPrompt(`${chalk.green.bold(this.getNextId())} >>> `)
 			rl.prompt()
 		}
-		rl.on('line', async text => {
-			text = text.trim()
-			if (text != '') {
-				await this.addEntry(text)
+		rl.on('line', async line => {
+			line = line.trim()
+			if (line != '') {
+				await this.addEntry(line)
 			}
 			setPrompt()
 		})
-		this.output.log(`'${chalk.bold(this.journalName)}'`)
+		this.output.log(`'${chalk.bold(this.getJournalName())}'`)
 		setPrompt()
 	}
 
@@ -119,18 +141,6 @@ export class Journal implements IJournal {
 		}
 		const lastEntry = this.entries[this.entries.length - 1]
 		return lastEntry.id + 1
-	}
-
-	private printSet(entries: Entry[]): void {
-		this.output.log(`'${chalk.bold(this.journalName)}'\n`)
-		for (const entry of entries) {
-			const date = this.dateService.parseTimestamp(entry.timestamp)
-			const displayDate = this.dateService.getDisplayDate(date)
-			this.output.log(
-				`${chalk.blue.bold(displayDate)}\n${chalk.green.bold(entry.id)} ${entry.text}\n`
-			)
-		}
-		this.output.log(`total: ${chalk.yellow(entries.length)}\n`)
 	}
 
 	public async addEntry(text: string): Promise<void> {
