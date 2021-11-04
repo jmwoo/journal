@@ -27,8 +27,8 @@ class Timer implements ITimer {
 }
 
 interface TimerResult {
-	start: [number, number],
+	start: [number, number]
 	end: [number, number]
-	seconds: number,
+	seconds: number
 	milliseconds: number
 }
