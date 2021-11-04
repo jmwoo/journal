@@ -100,11 +100,11 @@ export class Journal implements IJournal {
 			matchedEntries = matchedEntries.map(entry => {
 				// add colored highlights for matches
 				regex = getRegex()
-				const wordMatches: string[] = []
+				const wordMatches: Set<string> = new Set()
 				while (true) {
 					const match = regex.exec(entry.text)
 					if (match) {
-						wordMatches.push(match[0])
+						wordMatches.add(match[0])
 					} else {
 						break
 					}
