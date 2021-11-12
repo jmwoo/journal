@@ -4,7 +4,7 @@ import { JournalModel, EntryModel, Direction } from './types'
 
 const sequelize = new Sequelize({
 	dialect: 'sqlite',
-	storage: 'data/journal.sqlite',
+	storage: 'data/journal.db',
 	logging: false
 })
 
