@@ -1,5 +1,5 @@
-import { getJournal } from './journal'
-import { PrintDirection } from './types'
+import { getJournalService } from './journal-service'
+import { Direction } from './types'
 import yargs from 'yargs'
 ;(async () => {
 	const args = await yargs(process.argv.slice(2))
@@ -20,18 +20,19 @@ import yargs from 'yargs'
 		return
 	}
 
-	const journal = await getJournal(args.journal)
+	const journal = await getJournalService(args.journal)
 
 	if (args.print) {
-		journal.print({
-			printDirection: args.last ? PrintDirection.Last : PrintDirection.First,
+		await journal.print({
+			direction: args.last ? Direction.Last : Direction.First,
 			amount: args.last || args.first || Number.MAX_SAFE_INTEGER
 		})
 	} else if (args.search.trim() != '') {
-		journal.search(args.search)
+		await journal.search(args.search)
 	} else if (args.write) {
 		await journal.write()
 	} else if (args.metrics) {
-		journal.viewMetrics()
+		// journal.viewMetrics()
+		throw new Error('not implemented')
 	}
 })()

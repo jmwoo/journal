@@ -17,11 +17,11 @@ export interface JournalArguments {
 }
 
 export interface PrintOptions {
-	printDirection: PrintDirection
+	direction: Direction
 	amount: number
 }
 
-export enum PrintDirection {
+export enum Direction {
 	First,
 	Last
 }
@@ -29,4 +29,16 @@ export enum PrintDirection {
 export interface IOutput {
 	log: (msg: string) => void
 	error: (msg: string) => void
+}
+
+export interface EntryModel {
+	entryId: number
+	journalId: number
+	text: string
+	timestamp: Date
+}
+
+export interface JournalModel {
+	journalId: number
+	name: string
 }

@@ -1,11 +1,12 @@
 import { writeFile, readFile, mkdir } from 'fs/promises'
 import { join as pathJoin } from 'path'
 import chalk from 'chalk'
-import { Entry, IOutput, JournalArguments, PrintDirection, PrintOptions } from './types'
+import { Entry, IOutput, JournalArguments, Direction, PrintOptions } from './types'
 import { fileExists } from './util'
 import readline from 'readline'
 import { getMetrics } from './metrics'
 import { getDateService, IDateService } from './dateservice'
+import { parseISO as dateParseISO, format as dateFormat } from 'date-fns'
 
 export async function getJournal(journalName: string): Promise<IJournal> {
 	const getJournalName = () => journalName
@@ -43,7 +44,7 @@ const getPrintSet = (journalName: string, dateService: IDateService, output: IOu
 		output.log(`'${chalk.bold(journalName)}'\n`)
 		for (const entry of entries) {
 			const date = dateService.parseTimestamp(entry.timestamp)
-			const displayDate = dateService.getDisplayDate(date)
+			const displayDate = dateFormat(date, 'EEEE LLLL do yyyy h:mm:ss aaa')
 			output.log(
 				`${chalk.blue.bold(displayDate)}\n${chalk.green.bold(entry.id)} ${entry.text}\n`
 			)
@@ -83,7 +84,7 @@ export class Journal implements IJournal {
 
 	public print(options: PrintOptions): void {
 		const take =
-			options.printDirection == PrintDirection.First
+			options.direction == Direction.First
 				? (e: Entry[]) => e.slice(0, options.amount)
 				: (e: Entry[]) => e.slice(-options.amount)
 		const entriesToPrint = take(this.entries)

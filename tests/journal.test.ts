@@ -1,6 +1,6 @@
 import { getDateService } from '../src/dateservice'
 import { Journal } from '../src/journal'
-import { Entry, JournalArguments, PrintDirection } from '../src/types'
+import { Entry, JournalArguments, Direction } from '../src/types'
 import { parseISO } from 'date-fns'
 
 const getDefaultTestJournalArgs = (): JournalArguments => {
@@ -108,7 +108,7 @@ describe('journal.print()', () => {
 			{ id: 3, text: 'ghi', timestamp: '2021-10-28T16:56:31.487Z' }
 		]
 		const journal = new Journal(args)
-		journal.print({ printDirection: PrintDirection.First, amount: Number.MAX_SAFE_INTEGER })
+		journal.print({ Direction: Direction.First, amount: Number.MAX_SAFE_INTEGER })
 
 		expect(toPrint.length).toBe(3)
 		expect([1, 2, 3].every(i => toPrint.map(e => e.id).includes(i))).toBe(true)
@@ -124,7 +124,7 @@ describe('journal.print()', () => {
 			{ id: 3, text: 'ghi', timestamp: '2021-10-28T16:56:31.487Z' }
 		]
 		const journal = new Journal(args)
-		journal.print({ printDirection: PrintDirection.First, amount: 1 })
+		journal.print({ Direction: Direction.First, amount: 1 })
 
 		expect(toPrint.length).toBe(1)
 		expect(toPrint[0].id).toBe(1)
@@ -140,7 +140,7 @@ describe('journal.print()', () => {
 			{ id: 3, text: 'ghi', timestamp: '2021-10-28T16:56:31.487Z' }
 		]
 		const journal = new Journal(args)
-		journal.print({ printDirection: PrintDirection.Last, amount: 1 })
+		journal.print({ Direction: Direction.Last, amount: 1 })
 
 		expect(toPrint.length).toBe(1)
 		expect(toPrint[0].id).toBe(3)
