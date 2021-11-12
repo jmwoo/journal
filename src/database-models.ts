@@ -1,4 +1,4 @@
-import { Sequelize, Model, DataTypes, Op } from 'sequelize'
+import { Sequelize, Model, DataTypes } from 'sequelize'
 
 export class Journal extends Model {}
 export class Entry extends Model {}

@@ -1,9 +1,8 @@
-import { getDatabaseService } from './database-service'
+import { getDatabaseService, IDatabaseService } from './database-service'
 import { Direction, EntryModel, IOutput, PrintOptions } from './types'
 import readline from 'readline'
 import chalk from 'chalk'
-import { getDateService, IDateService } from './dateservice'
-import { parseISO as dateParseISO, format as dateFormat } from 'date-fns'
+import { format as dateFormat } from 'date-fns'
 
 const databaseService = getDatabaseService()
 
@@ -21,7 +20,9 @@ export async function getJournalService(journalName: string) {
 		journalName: journal.name,
 		printSet: printSet,
 		numEntries: numEntries,
-		output: output
+		output: output,
+		isColorsEnabled: true,
+		databaseService: databaseService
 	})
 }
 
@@ -40,21 +41,24 @@ const getPrintSet = (journalName: string, output: IOutput) => {
 	}
 }
 
-interface JournalServiceArgs {
+export interface JournalServiceArgs {
 	journalId: number
 	journalName: string
 	numEntries: number
 	printSet: (entries: EntryModel[]) => void
 	output: IOutput
+	isColorsEnabled: boolean
+	databaseService: IDatabaseService
 }
 
-class JournalService {
+export class JournalService {
 	private readonly journalId: number
 	private readonly journalName: string
 	private readonly printSet: (entries: EntryModel[]) => void
 	private numEntries: number
 	readonly output: IOutput
 	private readonly isColorsEnabled: boolean
+	private readonly databaseService: IDatabaseService
 
 	constructor(args: JournalServiceArgs) {
 		this.journalId = args.journalId
@@ -62,10 +66,11 @@ class JournalService {
 		this.printSet = args.printSet
 		this.numEntries = args.numEntries
 		this.output = args.output
-		this.isColorsEnabled = true
+		this.isColorsEnabled = args.isColorsEnabled
 		if (!this.isColorsEnabled) {
 			chalk.level = 0
 		}
+		this.databaseService = args.databaseService
 	}
 
 	public async addEntry(text: string): Promise<void> {

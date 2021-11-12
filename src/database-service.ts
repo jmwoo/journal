@@ -1,4 +1,4 @@
-import { Sequelize, Model, DataTypes, Op } from 'sequelize'
+import { Sequelize, Model } from 'sequelize'
 import { Journal, Entry, initializeModels } from './database-models'
 import { JournalModel, EntryModel, Direction } from './types'
 
