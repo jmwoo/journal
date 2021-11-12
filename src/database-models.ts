@@ -10,11 +10,13 @@ export function initializeModels(sequelize: Sequelize) {
 				type: DataTypes.INTEGER,
 				autoIncrement: true,
 				primaryKey: true,
-				allowNull: false
+				allowNull: false,
+				unique: true
 			},
 			name: {
 				type: DataTypes.STRING,
-				allowNull: false
+				allowNull: false,
+				unique: true
 			}
 		},
 		{ sequelize, modelName: 'journal' }
@@ -26,7 +28,8 @@ export function initializeModels(sequelize: Sequelize) {
 				type: DataTypes.INTEGER,
 				autoIncrement: true,
 				primaryKey: true,
-				allowNull: false
+				allowNull: false,
+				unique: true
 			},
 			journalId: {
 				type: DataTypes.INTEGER
