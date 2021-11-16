@@ -5,8 +5,9 @@ import { Direction, EntryModel } from '../src/types'
 const getDefaultDatabaseService = (): IDatabaseService => {
 	return {
 		sync: () => Promise.resolve(0),
-		createOrGetJournal: (name) => Promise.resolve({journalId: -1, name}),
-		createEntry: (journalId: number, text: string, timestamp: Date) => Promise.resolve({entryId: -1, journalId, text, timestamp}),
+		getOrCreateJournal: name => Promise.resolve({ journalId: -1, name }),
+		createEntry: (journalId: number, text: string, timestamp: Date) =>
+			Promise.resolve({ entryId: -1, journalId, text, timestamp }),
 		getNumEntries: () => Promise.resolve(0),
 		getEntries: (journalId: number, direction: Direction, amount: number) => Promise.resolve([])
 	}
@@ -37,7 +38,6 @@ describe('journal.addEntry()', () => {
 		// 	return Promise.resolve(entry)
 		// }
 		// const journalService = new JournalService(args)
-
 		// journalService.addEntry('abc ').then(() => {
 		// 	const entry = output[0]
 		// 	expect(entry.text).toBe('abc')
@@ -57,7 +57,6 @@ describe('journal.addEntry()', () => {
 		// 	return Promise.resolve(entry)
 		// }
 		// const journalService = new JournalService(args)
-
 		// journalService.addEntry('     ').then(() => {
 		// 	expect(errors.length == 1).toBe(true)
 		// 	expect(output.length == 0).toBe(true)
@@ -79,7 +78,6 @@ describe('journal.search()', () => {
 		// 	]
 		// 	return Promise.resolve(entries)
 		// }
-
 		// journalService.search('h').then(() => {
 		// 	const entry = output[0]
 		// 	expect(entry.entryId).toBe(3)
@@ -101,7 +99,6 @@ describe('journal.print()', () => {
 		// 	]
 		// 	return Promise.resolve(entries)
 		// }
-
 		// journalService.print({ direction: Direction.First, amount: Number.MAX_SAFE_INTEGER }).then(() => {
 		// 	expect(output.length).toBe(3)
 		// 	expect([1, 2, 3].every(i => output.map(e => e.entryId).includes(i))).toBe(true)

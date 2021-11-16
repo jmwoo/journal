@@ -8,7 +8,7 @@ const databaseService = getDatabaseService()
 
 export async function getJournalService(journalName: string) {
 	await databaseService.sync()
-	const journal = await databaseService.createOrGetJournal(journalName)
+	const journal = await databaseService.getOrCreateJournal(journalName)
 	const numEntries = await databaseService.getNumEntries(journal.journalId)
 	const output: IOutput = {
 		log: console.log,

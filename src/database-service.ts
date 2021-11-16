@@ -16,7 +16,7 @@ const toPlain = (model: Model) => {
 
 export interface IDatabaseService {
 	sync(): Promise<any>
-	createOrGetJournal(name: string): Promise<JournalModel>
+	getOrCreateJournal(name: string): Promise<JournalModel>
 	createEntry(journalId: number, text: string, timestamp: Date): Promise<EntryModel>
 	getNumEntries(journalId: number): Promise<number>
 	getEntries(journalId: number, direction: Direction, amount: number): Promise<Array<EntryModel>>
@@ -27,7 +27,7 @@ class DatabaseService implements IDatabaseService {
 		await sequelize.sync()
 	}
 
-	async createOrGetJournal(name: string): Promise<JournalModel> {
+	async getOrCreateJournal(name: string): Promise<JournalModel> {
 		let journal = await Journal.findOne({
 			where: {
 				name: name
@@ -60,7 +60,9 @@ class DatabaseService implements IDatabaseService {
 			limit: amount,
 			order: [['timestamp', orderBy]]
 		})
-		return entries.map(toPlain)
+		const entryModels: EntryModel[] = entries.map(toPlain)
+		entryModels.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+		return entryModels
 	}
 
 	async getNumEntries(journalId: number): Promise<number> {

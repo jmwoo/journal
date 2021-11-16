@@ -20,17 +20,17 @@ import yargs from 'yargs'
 		return
 	}
 
-	const journal = await getJournalService(args.journal)
+	const journalService = await getJournalService(args.journal)
 
 	if (args.print) {
-		await journal.print({
+		await journalService.print({
 			direction: args.last ? Direction.Last : Direction.First,
 			amount: args.last || args.first || Number.MAX_SAFE_INTEGER
 		})
 	} else if (args.search.trim() != '') {
-		await journal.search(args.search)
+		await journalService.search(args.search)
 	} else if (args.write) {
-		await journal.write()
+		await journalService.write()
 	} else if (args.metrics) {
 		// journal.viewMetrics()
 		throw new Error('not implemented')

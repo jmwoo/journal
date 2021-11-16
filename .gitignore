@@ -1,7 +1,4 @@
 .DS_Store
-entries/
 data/
-mutate.js
-archive_mac.sh
 node_modules/
 dist
