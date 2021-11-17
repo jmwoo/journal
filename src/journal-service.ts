@@ -109,11 +109,7 @@ export class JournalService {
 
 	public async search(regexStr: string): Promise<void> {
 		// TODO: pass regex to sqlite instead of reading all entries into memory if possible
-		const entries = await this.databaseService.getEntries(
-			this.journalId,
-			Direction.First,
-			Number.MAX_SAFE_INTEGER
-		)
+		const entries = await this.databaseService.getAllEntries(this.journalId)
 
 		const getRegex = () => new RegExp(regexStr, 'ig')
 		let regex = getRegex()

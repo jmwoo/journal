@@ -21,6 +21,8 @@ export interface IDatabaseService {
 	createEntry(journalId: number, text: string, timestamp: Date): Promise<EntryModel>
 	getNumEntries(journalId: number): Promise<number>
 	getEntries(journalId: number, direction: Direction, amount: number): Promise<Array<EntryModel>>
+	getAllEntries(journalId: number): Promise<Array<EntryModel>>
+	getJournals(): Promise<JournalModel[]>
 }
 
 class DatabaseService implements IDatabaseService {
@@ -66,12 +68,21 @@ class DatabaseService implements IDatabaseService {
 		return entryModels
 	}
 
+	async getAllEntries(journalId: number): Promise<EntryModel[]> {
+		return await this.getEntries(journalId, Direction.First, Number.MAX_SAFE_INTEGER)
+	}
+
 	async getNumEntries(journalId: number): Promise<number> {
 		return Entry.count({
 			where: {
 				journalId: journalId
 			}
 		})
+	}
+
+	async getJournals(): Promise<JournalModel[]> {
+		const journals = await Journal.findAll()
+		return journals.map(toPlain)
 	}
 }
 
