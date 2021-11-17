@@ -1,5 +1,6 @@
+import path from 'path'
 import dotenv from 'dotenv'
-dotenv.config()
+dotenv.config({path: path.resolve(__dirname, '../.env')})
 import { getJournalService } from './journal-service'
 import { Direction } from './types'
 import yargs from 'yargs'
