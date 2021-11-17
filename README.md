@@ -40,3 +40,8 @@ I wrote this a long time ago when I was first learning javascript. Suprisingly, 
 
     # find entries that start with 't'
     node dist/main.js -s ^t
+
+
+you can set a custom path/name for you journal. Just add a `.env` file in the project directory and add a DB_STORAGE value
+
+    DB_STORAGE=/some/path/on/your/computer/journal.db
