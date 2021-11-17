@@ -1,3 +1,5 @@
+import dotenv from 'dotenv'
+dotenv.config()
 import { getJournalService } from './journal-service'
 import { Direction } from './types'
 import yargs from 'yargs'
@@ -25,14 +27,13 @@ import yargs from 'yargs'
 	if (args.print) {
 		await journalService.print({
 			direction: args.last ? Direction.Last : Direction.First,
-			amount: args.last || args.first || Number.MAX_SAFE_INTEGER
+			amount: args.last ?? args.first ?? Number.MAX_SAFE_INTEGER
 		})
 	} else if (args.search.trim() != '') {
 		await journalService.search(args.search)
 	} else if (args.write) {
 		await journalService.write()
 	} else if (args.metrics) {
-		// journal.viewMetrics()
 		throw new Error('not implemented')
 	}
 })()

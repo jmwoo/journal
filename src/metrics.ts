@@ -1,5 +1,5 @@
 import { EntryModel } from './types'
-import { parseISO as dateParseISO, format as dateFormat } from 'date-fns'
+import { format as dateFormat } from 'date-fns'
 
 interface JournalMetrics {
 	wordFrequency: Map<string, number>

@@ -1,41 +1,42 @@
 # journal
 
-This is a simple journaling application that stores entries in JSON.
+A simple journaling application.
 
 ## about
-I wrote this a long time ago when I was first learning javascript. Suprisingly, I used it a lot. So I keep it updated for fun, most recent update is a move to typescript.
+I wrote this a long time ago when I was first learning javascript. Suprisingly, I used it a lot so I keep it updated for fun.
 
-## usage
-npm install
-npm run build
+## install
+    npm install
+    npm run build
 
-### write entries
+## write entries
 
-    <!-- default to 'main' journal -->
+    # default to 'main' journal
     node dist/main.js -w 
     
-    <!-- write to 'work' journal -->
+    # write to 'work' journal
     node dist/main.js -j work -w
 
-### print entries
+## print entries
 
-    <!-- default to 'main' journal -->
+    # default to 'main' journal
     node dist/main.js -p
 
-    <!-- print 'work' entries -->
+    # print 'work' entries
     node dist/main.js -j work -p
 
-    node dist/main.js -p -f {limit} // print first {limit} entries
+    # print first {limit} entries
+    node dist/main.js -p -f {limit}
 
-    node dist/main.js -l {limit} // print last {limit} entries
+    # print last {limit} entries
+    node dist/main.js -l {limit}
 
-### search for entries given a regular expression
+## search for entries given a regular expression
 
     node dist/main.js -s {regex}
 
-    node dist/main.js -j work -s {regex}
+    # find entries with the word 'test'
+    node dist/main.js -s test
 
-
-## TODO:
-- fix the formatting of the readme
-- add tests
+    # find entries that start with 't'
+    node dist/main.js -s ^t

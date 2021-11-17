@@ -32,7 +32,8 @@ export function initializeModels(sequelize: Sequelize) {
 				unique: true
 			},
 			journalId: {
-				type: DataTypes.INTEGER
+				type: DataTypes.INTEGER,
+				allowNull: false
 			},
 			text: {
 				type: DataTypes.STRING,

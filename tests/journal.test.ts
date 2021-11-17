@@ -1,4 +1,4 @@
-import { getDatabaseService, IDatabaseService } from '../src/database-service'
+import { getDatabaseServiceInstance, IDatabaseService } from '../src/database-service'
 import { JournalService, JournalServiceArgs } from '../src/journal-service'
 import { Direction, EntryModel } from '../src/types'
 
@@ -19,92 +19,83 @@ const getDefaultTestJournalArgs = (): JournalServiceArgs => {
 		journalName: 'test',
 		numEntries: 0,
 		output: {
-			log: msg => {},
-			error: msg => {}
+			log: (msg: string) => {},
+			error: (msg: string) => {}
 		},
-		printSet: e => {},
+		printSet: (entries: EntryModel[]) => {},
 		isColorsEnabled: false,
 		databaseService: getDefaultDatabaseService()
 	}
 }
 
 describe('journal.addEntry()', () => {
-	test('entry added', () => {
-		// const args = getDefaultTestJournalArgs()
-		// let output: EntryModel[] = []
-		// args.databaseService.createEntry = (journalId: number, text: string, timestamp: Date) => {
-		// 	let entry: EntryModel = {journalId, text, timestamp, entryId: -1}
-		// 	output.push(entry)
-		// 	return Promise.resolve(entry)
-		// }
-		// const journalService = new JournalService(args)
-		// journalService.addEntry('abc ').then(() => {
-		// 	const entry = output[0]
-		// 	expect(entry.text).toBe('abc')
-		// 	expect(entry.entryId).toBe(1)
-		// 	expect(entry.timestamp instanceof Date).toBe(true)
-		// })
+	test('entry added', async () => {
+		const args = getDefaultTestJournalArgs()
+		let output: EntryModel[] = []
+		args.databaseService.createEntry = (journalId: number, text: string, timestamp: Date) => {
+			let entry: EntryModel = { journalId, text, timestamp, entryId: -1 }
+			output.push(entry)
+			return Promise.resolve(entry)
+		}
+		const journalService = new JournalService(args)
+
+		await journalService.addEntry('abc ')
+		expect(output.length).toBe(1)
+		const entry = output[0]
+		expect(entry.text).toBe('abc')
+		expect(entry.timestamp instanceof Date).toBe(true)
 	})
 
 	test('bad entry text', () => {
-		// const args = getDefaultTestJournalArgs()
-		// const errors: string[] = []
-		// args.output.error = msg => errors.push(msg)
-		// let output: EntryModel[] = []
-		// args.databaseService.createEntry = (journalId: number, text: string, timestamp: Date) => {
-		// 	let entry: EntryModel = {journalId, text, timestamp, entryId: -1}
-		// 	output.push(entry)
-		// 	return Promise.resolve(entry)
-		// }
-		// const journalService = new JournalService(args)
-		// journalService.addEntry('     ').then(() => {
-		// 	expect(errors.length == 1).toBe(true)
-		// 	expect(output.length == 0).toBe(true)
-		// })
+		const args = getDefaultTestJournalArgs()
+		const errors: string[] = []
+		args.output.error = msg => errors.push(msg)
+		let output: EntryModel[] = []
+		args.databaseService.createEntry = async (
+			journalId: number,
+			text: string,
+			timestamp: Date
+		) => {
+			let entry: EntryModel = { journalId, text, timestamp, entryId: -1 }
+			output.push(entry)
+			return Promise.resolve(entry)
+		}
+		const journalService = new JournalService(args)
+		journalService.addEntry('     ').then(() => {
+			expect(errors.length == 1).toBe(true)
+			expect(output.length == 0).toBe(true)
+		})
 	})
 })
 
 describe('journal.search()', () => {
-	test('search text', () => {
-		// const args = getDefaultTestJournalArgs()
-		// let output: EntryModel[] = []
-		// args.printSet = (e) => output = output.concat(e)
-		// const journalService = new JournalService(args)
-		// args.databaseService.getEntries = () => {
-		// 	const entries: EntryModel[] = [
-		// 		{entryId: 1, journalId: 1, text: 'abc', timestamp: new Date()},
-		// 		{entryId: 2, journalId: 1, text: 'def', timestamp: new Date()},
-		// 		{entryId: 3, journalId: 1, text: 'ghi', timestamp: new Date()}
-		// 	]
-		// 	return Promise.resolve(entries)
-		// }
-		// journalService.search('h').then(() => {
-		// 	const entry = output[0]
-		// 	expect(entry.entryId).toBe(3)
-		// })
-	})
-})
+	test('search text', async () => {
+		let toPrint: EntryModel[] = []
+		const args = getDefaultTestJournalArgs()
+		args.databaseService.getEntries = async (
+			journalId: number,
+			direction: Direction,
+			amount: number
+		) => {
+			const entries: EntryModel[] = [
+				{ entryId: 1, journalId: 1, text: 'abc', timestamp: new Date() },
+				{ entryId: 2, journalId: 1, text: 'def', timestamp: new Date() },
+				{ entryId: 3, journalId: 1, text: 'ghi', timestamp: new Date() }
+			]
+			return Promise.resolve(entries)
+		}
+		args.printSet = entries => (toPrint = toPrint.concat(entries))
+		const journalService = new JournalService(args)
 
-describe('journal.print()', () => {
-	test('print all entries', () => {
-		// const args = getDefaultTestJournalArgs()
-		// let output: EntryModel[] = []
-		// args.printSet = (e) => output = output.concat(e)
-		// const journalService = new JournalService(args)
-		// args.databaseService.getEntries = () => {
-		// 	const entries: EntryModel[] = [
-		// 		{entryId: 1, journalId: 1, text: 'abc', timestamp: new Date()},
-		// 		{entryId: 2, journalId: 1, text: 'def', timestamp: new Date()},
-		// 		{entryId: 3, journalId: 1, text: 'ghi', timestamp: new Date()}
-		// 	]
-		// 	return Promise.resolve(entries)
-		// }
-		// journalService.print({ direction: Direction.First, amount: Number.MAX_SAFE_INTEGER }).then(() => {
-		// 	expect(output.length).toBe(3)
-		// 	expect([1, 2, 3].every(i => output.map(e => e.entryId).includes(i))).toBe(true)
-		// })
-	})
+		await journalService.search('e')
+		expect(toPrint.length).toBe(1)
+		let entry = toPrint[0]
+		expect(entry.entryId).toBe(2)
 
-	// TODO: print first entry
-	// TODO: print last entry
+		toPrint = []
+		await journalService.search('^g')
+		expect(toPrint.length).toBe(1)
+		entry = toPrint[0]
+		expect(entry.entryId).toBe(3)
+	})
 })

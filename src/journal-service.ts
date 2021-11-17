@@ -1,12 +1,11 @@
-import { getDatabaseService, IDatabaseService } from './database-service'
+import { getDatabaseServiceInstance, IDatabaseService } from './database-service'
 import { Direction, EntryModel, IOutput, PrintOptions } from './types'
 import readline from 'readline'
 import chalk from 'chalk'
 import { format as dateFormat } from 'date-fns'
 
-const databaseService = getDatabaseService()
-
 export async function getJournalService(journalName: string) {
+	const databaseService = getDatabaseServiceInstance()
 	await databaseService.sync()
 	const journal = await databaseService.getOrCreateJournal(journalName)
 	const numEntries = await databaseService.getNumEntries(journal.journalId)
@@ -78,8 +77,7 @@ export class JournalService {
 			this.output.error('entry text invalid')
 			return
 		}
-
-		await databaseService.createEntry(this.journalId, text, new Date())
+		await this.databaseService.createEntry(this.journalId, text.trim(), new Date())
 		this.numEntries += 1
 	}
 
@@ -101,7 +99,7 @@ export class JournalService {
 	}
 
 	public async print(options: PrintOptions): Promise<void> {
-		const entries = await databaseService.getEntries(
+		const entries = await this.databaseService.getEntries(
 			this.journalId,
 			options.direction,
 			options.amount
@@ -111,7 +109,7 @@ export class JournalService {
 
 	public async search(regexStr: string): Promise<void> {
 		// TODO: pass regex to sqlite instead of reading all entries into memory if possible
-		const entries = await databaseService.getEntries(
+		const entries = await this.databaseService.getEntries(
 			this.journalId,
 			Direction.First,
 			Number.MAX_SAFE_INTEGER

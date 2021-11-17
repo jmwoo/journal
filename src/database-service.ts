@@ -1,10 +1,11 @@
 import { Sequelize, Model } from 'sequelize'
 import { Journal, Entry, initializeModels } from './database-models'
 import { JournalModel, EntryModel, Direction } from './types'
+import { join as pathJoin } from 'path'
 
 const sequelize = new Sequelize({
 	dialect: 'sqlite',
-	storage: 'data/journal.db',
+	storage: process.env.DB_STORAGE ?? pathJoin(__dirname, '../data/journal.db'),
 	logging: false
 })
 
@@ -74,6 +75,10 @@ class DatabaseService implements IDatabaseService {
 	}
 }
 
-export const getDatabaseService = (): IDatabaseService => {
-	return new DatabaseService()
+let databaseService: IDatabaseService
+export const getDatabaseServiceInstance = (): IDatabaseService => {
+	if (!databaseService) {
+		databaseService = new DatabaseService()
+	}
+	return databaseService
 }

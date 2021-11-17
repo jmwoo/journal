@@ -4,12 +4,13 @@
   "dependencies": {
     "chalk": "^4.1.2",
     "date-fns": "^2.25.0",
+    "dotenv": "^10.0.0",
     "sequelize": "^6.9.0",
-    "sqlite3": "^5.0.2",
+    "sqlite3": "^4.2.0",
     "yargs": "^17.2.1"
   },
   "scripts": {
-    "start": "tsc && node dist/journal.js",
+    "start": "tsc && node dist/main.js -w",
     "build": "tsc",
     "format": "prettier --config .prettierrc './**/*.ts' --write",
     "test": "jest"
