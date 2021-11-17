@@ -1,5 +1,7 @@
-import { getJournal } from './journal'
-import { PrintDirection } from './types'
+import dotenv from 'dotenv'
+dotenv.config()
+import { getJournalService } from './journal-service'
+import { Direction } from './types'
 import yargs from 'yargs'
 ;(async () => {
 	const args = await yargs(process.argv.slice(2))
@@ -20,18 +22,18 @@ import yargs from 'yargs'
 		return
 	}
 
-	const journal = await getJournal(args.journal)
+	const journalService = await getJournalService(args.journal)
 
 	if (args.print) {
-		journal.print({
-			printDirection: args.last ? PrintDirection.Last : PrintDirection.First,
-			amount: args.last || args.first || Number.MAX_SAFE_INTEGER
+		await journalService.print({
+			direction: args.last ? Direction.Last : Direction.First,
+			amount: args.last ?? args.first ?? Number.MAX_SAFE_INTEGER
 		})
 	} else if (args.search.trim() != '') {
-		journal.search(args.search)
+		await journalService.search(args.search)
 	} else if (args.write) {
-		await journal.write()
+		await journalService.write()
 	} else if (args.metrics) {
-		journal.viewMetrics()
+		throw new Error('not implemented')
 	}
 })()

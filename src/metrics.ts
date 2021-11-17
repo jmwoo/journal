@@ -1,5 +1,5 @@
-import { Entry } from './types'
-import { parseISO as dateParseISO, format as dateFormat } from 'date-fns'
+import { EntryModel } from './types'
+import { format as dateFormat } from 'date-fns'
 
 interface JournalMetrics {
 	wordFrequency: Map<string, number>
@@ -15,16 +15,15 @@ const increment = (map: Map<any, number>, key: any): void => {
 	map.set(key, (map.get(key) ?? 0) + 1)
 }
 
-export function getMetrics(entries: Entry[]): JournalMetrics {
+export function getMetrics(entries: EntryModel[]): JournalMetrics {
 	const wordFrequency = new Map<string, number>()
 	const dayOfWeekFrequency = new Map<string, number>()
 	const hourOfDayFrequency = new Map<string, number>()
 	const punctuation = ['.', ',', '!', '"', ';', ':', "'", '(', ')']
 
 	for (const entry of entries) {
-		const date = dateParseISO(entry.timestamp)
-		const dayOfWeek = dateFormat(date, 'EEEE')
-		const hourOfDay = dateFormat(date, 'h aaa')
+		const dayOfWeek = dateFormat(entry.timestamp, 'EEEE')
+		const hourOfDay = dateFormat(entry.timestamp, 'h aaa')
 
 		increment(dayOfWeekFrequency, dayOfWeek)
 		increment(hourOfDayFrequency, hourOfDay)

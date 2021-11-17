@@ -1,4 +1,0 @@
-- add lint
-- add tests
-    - jest
-    - mocha and chai

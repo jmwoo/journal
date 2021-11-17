@@ -1,6 +1,5 @@
 .DS_Store
-entries/
-mutate.js
-archive_mac.sh
+data/
 node_modules/
 dist
+.env
