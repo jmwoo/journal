@@ -4,15 +4,12 @@ import readline from 'readline'
 import chalk from 'chalk'
 import { format as dateFormat } from 'date-fns'
 
-export async function getJournalService(journalName: string) {
+export async function getJournalService(journalName: string): Promise<IJournalService> {
 	const databaseService = getDatabaseServiceInstance()
 	await databaseService.sync()
 	const journal = await databaseService.getOrCreateJournal(journalName)
 	const numEntries = await databaseService.getNumEntries(journal.journalId)
-	const output: IOutput = {
-		log: console.log,
-		error: console.error
-	}
+	const output = getOutput()
 	const printSet = getPrintSet(journalName, output)
 	return new JournalService({
 		journalId: journal.journalId,
@@ -40,6 +37,13 @@ const getPrintSet = (journalName: string, output: IOutput) => {
 	}
 }
 
+const getOutput = (): IOutput => {
+	return {
+		log: console.log,
+		error: console.error
+	}
+}
+
 export interface JournalServiceArgs {
 	journalId: number
 	journalName: string
@@ -48,6 +52,12 @@ export interface JournalServiceArgs {
 	output: IOutput
 	isColorsEnabled: boolean
 	databaseService: IDatabaseService
+}
+
+export interface IJournalService {
+	write(): Promise<void>
+	print(options: PrintOptions): Promise<void>
+	search(regexStr: string): Promise<void>
 }
 
 export class JournalService {

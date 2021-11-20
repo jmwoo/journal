@@ -9,7 +9,10 @@ const getDefaultDatabaseService = (): IDatabaseService => {
 		createEntry: (journalId: number, text: string, timestamp: Date) =>
 			Promise.resolve({ entryId: -1, journalId, text, timestamp }),
 		getNumEntries: () => Promise.resolve(0),
-		getEntries: (journalId: number, direction: Direction, amount: number) => Promise.resolve([])
+		getEntries: (journalId: number, direction: Direction, amount: number) =>
+			Promise.resolve([]),
+		getAllEntries: (journalId: number) => Promise.resolve([]),
+		getJournals: () => Promise.resolve([])
 	}
 }
 
@@ -72,11 +75,7 @@ describe('journal.search()', () => {
 	test('search text', async () => {
 		let toPrint: EntryModel[] = []
 		const args = getDefaultTestJournalArgs()
-		args.databaseService.getEntries = async (
-			journalId: number,
-			direction: Direction,
-			amount: number
-		) => {
+		args.databaseService.getAllEntries = async () => {
 			const entries: EntryModel[] = [
 				{ entryId: 1, journalId: 1, text: 'abc', timestamp: new Date() },
 				{ entryId: 2, journalId: 1, text: 'def', timestamp: new Date() },
